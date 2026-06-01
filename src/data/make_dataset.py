@@ -2,14 +2,14 @@
 
 import os
 import shutil
-import zipfile
+import re
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 
 from sklearn.model_selection import train_test_split
 
 from src.utils.config import Config
-from src.utils.nutrition import FRUIT360_TO_STANDARD
+from src.utils.nutrition import CLASS_NAMES, FRUIT360_TO_STANDARD
 
 
 def ensure_dir(path: Path) -> Path:
@@ -18,31 +18,44 @@ def ensure_dir(path: Path) -> Path:
     return path
 
 
-def extract_archive(archive_path: Path, extract_dir: Path) -> Path:
-    """解压 zip 文件到指定目录，返回解压后的根目录路径。"""
-    ensure_dir(extract_dir)
-    with zipfile.ZipFile(archive_path, "r") as zf:
-        zf.extractall(extract_dir)
-    # 返回解压后的顶层目录
-    names = [f for f in os.listdir(extract_dir) if (extract_dir / f).is_dir()]
-    if not names:
-        raise RuntimeError(f"解压后未找到目录: {extract_dir}")
-    return extract_dir / (names[0] if len(names) == 1 else "")
+def _match_class(folder_name: str, target_names: List[str]) -> Optional[str]:
+    """将数据集目录名匹配到标准类名。
+
+    优先精确匹配 FRUIT360_TO_STANDARD，其次前缀匹配。
+    如 "Apple Golden 1" 先查精确映射，无则前缀匹配 "Apple"。
+    """
+    # 1. 精确映射
+    exact = FRUIT360_TO_STANDARD.get(folder_name)
+    if exact:
+        return exact
+
+    # 2. 前缀匹配（忽略大小写和末尾数字后缀）
+    name_lower = folder_name.lower()
+    for target in target_names:
+        target_lower = target.lower()
+        if name_lower == target_lower or name_lower.startswith(target_lower + " "):
+            return target
+
+    return None
 
 
 def collect_class_images(
-    data_root: Path, target_map: Dict[str, str]
+    data_root: Path, target_names: List[str]
 ) -> Dict[str, List[Path]]:
-    """扫描 data_root 下所有类别子目录，按 target_map 筛选并映射到标准名。
+    """扫描 data_root 下所有类别子目录，前缀匹配筛选并映射到标准名。
 
     返回 {standard_name: [image_paths]}。
     """
     result: Dict[str, List[Path]] = {}
+    matched = 0
+    skipped = 0
+
     for folder in sorted(data_root.iterdir()):
         if not folder.is_dir():
             continue
-        standard_name = target_map.get(folder.name)
+        standard_name = _match_class(folder.name, target_names)
         if standard_name is None:
+            skipped += 1
             continue
         images = sorted(
             p for p in folder.iterdir()
@@ -50,6 +63,9 @@ def collect_class_images(
         )
         if images:
             result.setdefault(standard_name, []).extend(images)
+            matched += 1
+
+    print(f"匹配了 {matched} 个目录，跳过了 {skipped} 个目录")
     return result
 
 
@@ -87,11 +103,8 @@ def find_dataset_dir(raw_dir: Path) -> Optional[Path]:
     """在 raw_dir 中查找 Fruits 360 数据集的根目录。"""
     for root, dirs, _ in os.walk(raw_dir):
         subdirs = set(dirs)
-        for candidate in subdirs:
-            if candidate in FRUIT360_TO_STANDARD:
-                return Path(root)
-        # 也检查是否有 Training/Test 子目录结构
-        if "Training" in subdirs:
+        # 检查是否有 Training/Test 子目录结构
+        if "Training" in subdirs or "training" in {d.lower() for d in subdirs}:
             return Path(root)
     return None
 
@@ -138,10 +151,10 @@ def main(config: Optional[Config] = None) -> None:
 
     # 收集图片
     print("扫描类别目录...")
-    train_images = collect_class_images(training_dir, FRUIT360_TO_STANDARD)
+    train_images = collect_class_images(training_dir, CLASS_NAMES)
 
     if test_dir:
-        test_raw = collect_class_images(test_dir, FRUIT360_TO_STANDARD)
+        test_raw = collect_class_images(test_dir, CLASS_NAMES)
     else:
         test_raw = {}
 

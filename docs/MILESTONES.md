@@ -4,7 +4,7 @@
 
 | 阶段 | 名称 | 预估工时 | 核心交付 | 状态 |
 |---|---|---|---|---|
-| M1 | 环境搭建与数据准备 | 1-2 天 | 项目骨架、数据集就绪 | 🟡 进行中 |
+| M1 | 环境搭建与数据准备 | 1-2 天 | 项目骨架、数据集就绪 | ✅ 已完成 |
 | M2 | 模型开发与训练 | 2-3 天 | CNN 模型训练完成 | 🔴 待开始 |
 | M3 | 模型评估与可视化 | 1-2 天 | 评估报告、可视化图表 | 🔴 待开始 |
 | M4 | Web 应用开发 | 2-3 天 | 可交互 Streamlit 应用 | ✅ 已完成 |
@@ -26,8 +26,8 @@
 - [x] 安装依赖：`torch`, `torchvision`, `numpy`, `matplotlib`, `seaborn`, `scikit-learn`, `pillow`, `streamlit`, `pandas`
 - [x] 生成 `requirements.txt`
 - [x] 编写 `pyproject.toml`
-- [ ] 下载 Fruits 360 数据集至 `data/raw/`
-- [ ] 筛选 15 个目标水果类别（代码已就绪，待数据集下载后运行）
+- [x] 下载 Fruits 360 数据集至 `data/raw/`
+- [x] 筛选 15 个目标水果类别（代码已就绪，待数据集下载后运行）
 - [x] 实现 `src/data/make_dataset.py`：划分训练/测试集（80:20 分层抽样）
 - [x] 实现 `src/data/fruit_dataset.py`：PyTorch Dataset 类（含数据增强）
 - [x] 编写 `src/utils/config.py`：集中管理路径和超参数
@@ -36,7 +36,7 @@
 ### 交付物
 
 1. ~~Git 仓库，初始 commit 完成~~ ✅
-2. `data/processed/train/` 和 `data/processed/test/` 下的组织化数据（⚠️ 待数据集下载）
+2. ~~`data/processed/train/` 和 `data/processed/test/` 下的组织化数据（⚠️ 待数据集下载）~~ ✅
 3. ~~`pyproject.toml` 和 `requirements.txt`~~ ✅
 4. ~~营养数据字典~~ ✅
 
