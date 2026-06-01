@@ -47,7 +47,7 @@ cd src
 python -c "from data.fruit_dataset import FruitDataset; \
            ds = FruitDataset('../data/processed/train'); \
            print(f'训练集: {len(ds)} 张图片')"
-# 预期输出: 训练集: ~7600 张图片
+# 预期输出: 训练集: ~63600 张图片
 ```
 
 ---
