@@ -1,0 +1,340 @@
+/* ============================================================
+   Fruit Recognition System — Custom Stylesheet
+   Green theme · Responsive · Accessible · CSS animation fallbacks
+   ============================================================ */
+
+/* ── CSS Custom Properties ───────────────────────────────────── */
+:root {
+  --primary: #2E7D32;
+  --primary-light: #4CAF50;
+  --primary-dark: #1B5E20;
+  --accent: #FF6F00;
+  --accent-light: #FFB300;
+  --bg: #F1F8E9;
+  --card-bg: #FFFFFF;
+  --text: #1B1B1B;
+  --text-secondary: #616161;
+  --error: #D32F2F;
+  --success: #388E3C;
+  --shadow: 0 4px 20px rgba(0,0,0,0.08);
+  --shadow-hover: 0 8px 30px rgba(0,0,0,0.12);
+  --radius: 16px;
+  --radius-sm: 8px;
+  --transition: 0.3s ease;
+}
+
+/* ── Base Overrides ──────────────────────────────────────────── */
+.stApp {
+  background: var(--bg);
+}
+.main .block-container {
+  max-width: 800px;
+  padding-top: 2rem;
+}
+
+/* ── Hero Section ────────────────────────────────────────────── */
+.hero-section {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.hero-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  font-family: 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.3rem;
+}
+.hero-subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+
+/* ── Section Divider ─────────────────────────────────────────── */
+.section-divider {
+  text-align: center;
+  color: var(--primary-light);
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 2rem 0 1rem 0;
+  letter-spacing: 2px;
+}
+
+/* ── Upload Zone ─────────────────────────────────────────────── */
+.upload-zone {
+  border: 2px dashed var(--primary-light);
+  border-radius: var(--radius);
+  padding: 2.5rem;
+  text-align: center;
+  background: linear-gradient(135deg, #E8F5E9 0%, #F1F8E9 100%);
+  transition: all var(--transition);
+  animation: pulse-border 2s infinite;
+}
+.upload-zone:hover {
+  border-color: var(--primary);
+  background: linear-gradient(135deg, #C8E6C9 0%, #E8F5E9 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+.upload-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+.upload-text {
+  font-size: 1.1rem;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+.upload-hint {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+@keyframes pulse-border {
+  0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.3); }
+  70% { box-shadow: 0 0 0 12px rgba(76, 175, 80, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+}
+
+/* ── Image Preview ───────────────────────────────────────────── */
+.preview-container {
+  margin: 1.5rem 0;
+  text-align: center;
+}
+.preview-image {
+  max-width: 100%;
+  max-height: 350px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 3px solid white;
+}
+
+/* ── Result Card ─────────────────────────────────────────────── */
+.result-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin: 1rem 0;
+  box-shadow: var(--shadow);
+  border-left: 5px solid var(--primary);
+}
+.result-fruit-name {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+.result-fruit-name-en {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+  margin-left: 0.3rem;
+}
+.result-emoji {
+  font-size: 2.5rem;
+  margin-right: 0.5rem;
+}
+
+/* ── Confidence Bar ──────────────────────────────────────────── */
+.confidence-section {
+  margin: 1rem 0;
+}
+.confidence-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+.confidence-label span:last-child {
+  font-weight: 600;
+  color: var(--primary-dark);
+}
+.confidence-bar-track {
+  width: 100%;
+  height: 24px;
+  background: #E0E0E0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.confidence-bar-fill {
+  height: 100%;
+  border-radius: 12px;
+  background: linear-gradient(90deg, var(--primary-light), var(--primary-dark));
+  width: 0%;
+  transition: width 0.3s ease;
+  position: relative;
+}
+.confidence-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+  border-radius: 12px;
+}
+
+/* ── Nutrition Section ───────────────────────────────────────── */
+.nutrition-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--primary-dark);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.nutrition-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-sm);
+  padding: 1.2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 1px solid #E8F5E9;
+  transition: transform var(--transition), box-shadow var(--transition);
+  text-align: center;
+}
+.nutrition-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+}
+.nutrition-card-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.nutrition-card-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+.nutrition-card-value {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--primary-dark);
+  margin-top: 0.25rem;
+}
+
+/* ── Benefits List ───────────────────────────────────────────── */
+.benefits-list {
+  list-style: none;
+  padding: 0;
+}
+.benefits-list li {
+  padding: 0.5rem 0 0.5rem 1.5rem;
+  position: relative;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+.benefits-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--success);
+  font-weight: bold;
+}
+
+/* ── Description ─────────────────────────────────────────────── */
+.description-text {
+  background: #F9FBE7;
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  margin: 1rem 0;
+  line-height: 1.6;
+  color: var(--text);
+  border-left: 3px solid var(--accent-light);
+}
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.stButton > button {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark)) !important;
+  color: white !important;
+  border-radius: 25px !important;
+  padding: 0.6rem 2rem !important;
+  font-size: 1.05rem !important;
+  font-weight: 600 !important;
+  border: none !important;
+  transition: all var(--transition) !important;
+  width: 100% !important;
+  letter-spacing: 0.5px;
+}
+.stButton > button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(46, 125, 50, 0.4) !important;
+}
+.stButton > button:active {
+  transform: scale(0.97) !important;
+}
+
+/* ── Error Message ───────────────────────────────────────────── */
+.error-message {
+  background: #FFEBEE;
+  color: var(--error);
+  border: 1px solid #EF9A9A;
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ── Spinner ─────────────────────────────────────────────────── */
+.stSpinner > div {
+  border-top-color: var(--primary) !important;
+}
+
+/* ── Footer ──────────────────────────────────────────────────── */
+.app-footer {
+  text-align: center;
+  margin-top: 3rem;
+  padding: 1rem;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  border-top: 1px solid #E0E0E0;
+}
+
+/* ── CSS Animation Fallbacks ─────────────────────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.6s ease-out both;
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .hero-title { font-size: 1.6rem; }
+  .upload-zone { padding: 1.5rem; }
+  .result-fruit-name { font-size: 1.4rem; }
+  .nutrition-card { padding: 0.8rem; }
+  .nutrition-card-value { font-size: 1rem; }
+}
+
+/* ── Accessibility: reduced motion ───────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Accessibility: focus ────────────────────────────────────── */
+button:focus-visible, input:focus-visible {
+  outline: 3px solid var(--accent-light) !important;
+  outline-offset: 2px;
+}
+
+/* ── Accessibility: screen-reader only ───────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  border: 0;
+}

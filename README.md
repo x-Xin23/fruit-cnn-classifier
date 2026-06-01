@@ -22,6 +22,10 @@ ending/
 │   ├── inference/          # 推理预测
 │   └── utils/              # 配置、营养数据
 ├── webapp/                 # Streamlit Web 应用
+│   ├── app.py              # 主入口
+│   ├── utils.py            # 模型加载、推理、营养数据
+│   ├── assets/             # 样式、主题、GSAP 动画
+│   └── components/         # UI 组件（上传、结果、营养）
 ├── docs/                   # 所有文档（与代码硬隔离）
 │   ├── SPEC.md             # 规格说明书
 │   ├── MILESTONES.md       # 里程碑计划
@@ -92,6 +96,7 @@ streamlit run app.py
 
 - **PyTorch** — 深度学习框架
 - **Streamlit** — Web 应用框架
+- **GSAP** — JavaScript 动画库（入场动画、交错效果）
 - **scikit-learn** — 评估指标
 - **matplotlib / seaborn** — 可视化
 

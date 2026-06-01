@@ -2,13 +2,13 @@
 
 ## 总览
 
-| 阶段 | 名称 | 预估工时 | 核心交付 |
-|---|---|---|---|
-| M1 | 环境搭建与数据准备 | 1-2 天 | 项目骨架、数据集就绪 |
-| M2 | 模型开发与训练 | 2-3 天 | CNN 模型训练完成 |
-| M3 | 模型评估与可视化 | 1-2 天 | 评估报告、可视化图表 |
-| M4 | Web 应用开发 | 2-3 天 | 可交互 Streamlit 应用 |
-| M5 | 集成测试与文档 | 2-3 天 | 完整交付物 |
+| 阶段 | 名称 | 预估工时 | 核心交付 | 状态 |
+|---|---|---|---|---|
+| M1 | 环境搭建与数据准备 | 1-2 天 | 项目骨架、数据集就绪 | 🔴 待开始 |
+| M2 | 模型开发与训练 | 2-3 天 | CNN 模型训练完成 | 🔴 待开始 |
+| M3 | 模型评估与可视化 | 1-2 天 | 评估报告、可视化图表 | 🔴 待开始 |
+| M4 | Web 应用开发 | 2-3 天 | 可交互 Streamlit 应用 | ✅ 已完成 |
+| M5 | 集成测试与文档 | 2-3 天 | 完整交付物 | 🟡 进行中 |
 
 **总计预估**: 8-13 天
 
@@ -20,12 +20,12 @@
 
 ### 任务清单
 
-- [ ] 初始化 Git 仓库，创建 `.gitignore`
-- [ ] 创建完整项目目录结构（`src/`, `docs/`, `webapp/`, `data/`, `models/`, `notebooks/`）
+- [x] 初始化 Git 仓库，创建 `.gitignore`
+- [x] 创建完整项目目录结构（`src/`, `docs/`, `webapp/`, `data/`, `models/`, `notebooks/`）
 - [ ] 使用 `uv` 初始化 Python 虚拟环境
 - [ ] 安装依赖：`torch`, `torchvision`, `numpy`, `matplotlib`, `seaborn`, `scikit-learn`, `pillow`, `streamlit`, `pandas`
-- [ ] 生成 `requirements.txt`
-- [ ] 编写 `pyproject.toml`
+- [x] 生成 `requirements.txt`
+- [x] 编写 `pyproject.toml`
 - [ ] 下载 Fruits 360 数据集至 `data/raw/`
 - [ ] 筛选 15 个目标水果类别
 - [ ] 实现 `src/data/make_dataset.py`：划分训练/测试集（80:20 分层抽样）
@@ -35,9 +35,9 @@
 
 ### 交付物
 
-1. Git 仓库，初始 commit 完成
+1. ~~Git 仓库，初始 commit 完成~~ ✅
 2. `data/processed/train/` 和 `data/processed/test/` 下的组织化数据
-3. `pyproject.toml` 和 `requirements.txt`
+3. ~~`pyproject.toml` 和 `requirements.txt`~~ ✅
 4. 营养数据字典
 
 ### 验证方式
@@ -134,34 +134,75 @@ python evaluation/evaluate.py
 
 ---
 
-## M4: Web 应用开发
+## M4: Web 应用开发 ✅
 
-**目标**: 开发完整的 Streamlit Web 应用，实现图片上传 → 预测 → 营养展示。
+> **状态**: ✅ 已完成 (2026-06-01)。Web 前端已完整实现，但依赖 M1-M3 产出的模型文件才能运行推理。
+
+**目标**: 开发完整的 Streamlit Web 应用，实现图片上传 → 预测 → 营养展示。前端采用绿色水果主题设计系统，GSAP 动画增强交互体验，满足 WCAG AA 无障碍标准。
+
+### 文件结构
+
+```
+webapp/
+├── app.py                    # 主入口（页面配置、session state、流程编排）
+├── utils.py                  # 模型缓存加载、图像预处理、推理、营养数据
+├── assets/
+│   ├── style.css             # 自定义 CSS（绿色主题、响应式、无障碍、CSS fallback）
+│   ├── theme.py              # 设计 token（颜色、字体、间距）+ CSS 注入函数
+│   └── animations.js         # GSAP 动画定义（MutationObserver 监听动态 DOM）
+├── components/
+│   ├── __init__.py           # 组件导出
+│   ├── upload.py             # 图片上传 + 验证 + 预览
+│   ├── result.py             # 识别结果卡片 + 置信度进度条
+│   └── nutrition.py          # 营养价值卡片网格 + 功效列表
+└── requirements.txt          # Web 精简依赖
+```
+
+### 技术增强（超出原始 SPEC）
+
+| 增强项 | 技术 | 说明 |
+|---|---|---|
+| GSAP 动画 | `st.components.v1.html()` 隐藏 iframe + `window.parent.document` | Hero 入场、结果揭示、置信度条填充、营养卡片交错入场 |
+| 设计系统 | CSS 变量 + 绿色主题 | 水果/自然感色彩，11 个设计 token |
+| 无障碍 | ARIA + `prefers-reduced-motion` + 键盘导航 | WCAG AA 合规，屏幕阅读器完整支持 |
+| 降级策略 | CSS keyframes fallback | GSAP 不可用时 CSS 动画自动接管 |
 
 ### 任务清单
 
-- [ ] 实现 `webapp/app.py`：
-  - `st.set_page_config` 页面配置
-  - `st.file_uploader` 图片上传组件
-  - `st.button("识别水果")` 预测触发
-  - 加载模型并推理
-  - 展示：上传图片、预测结果（名称 + 置信度进度条）
-  - 展示：营养价值信息表格
-  - 错误处理：非法文件类型提示
-  - Spinner 加载状态
-- [ ] 实现 `webapp/utils.py`：
+- [x] 实现 `webapp/requirements.txt`（精简依赖）
+- [x] 实现 `webapp/assets/theme.py`（设计 token + CSS 注入）
+- [x] 实现 `webapp/assets/style.css`（完整绿色主题、响应式、无障碍、CSS 动画 fallback）
+- [x] 实现 `webapp/utils.py`：
+  - 15 种水果营养数据字典
   - `@st.cache_resource` 模型加载
-  - 图片预处理函数
-  - 预测函数封装
-- [ ] 添加 CSS 样式美化（`webapp/assets/style.css`）
-- [ ] 端到端测试：上传图片 → 预测 → 营养展示
-- [ ] 编写 `webapp/requirements.txt`（精简版，仅部署所需）
+  - 图像预处理函数（128×128、ImageNet 归一化）
+  - 预测函数封装（返回名称、置信度、概率分布）
+- [x] 实现 `webapp/components/__init__.py`
+- [x] 实现 `webapp/components/upload.py`（上传、验证、base64 预览）
+- [x] 实现 `webapp/components/result.py`（结果卡片、置信度进度条、Top-3 概率）
+- [x] 实现 `webapp/components/nutrition.py`（营养卡片网格、功效列表、描述）
+- [x] 实现 `webapp/assets/animations.js`（GSAP 动画引擎、MutationObserver）
+- [x] 实现 `webapp/app.py`：
+  - `st.set_page_config` 页面配置
+  - Session state 管理（图片、预测结果、错误状态）
+  - Hero 标题 + 副标题
+  - 图片上传区域
+  - "识别水果" 按钮 + Spinner 加载状态
+  - 识别结果展示（名称 + 置信度动画）
+  - 营养价值展示（卡片 + 功效 + 描述）
+  - 重新上传按钮（状态重置）
+  - 错误提示（文件格式、文件大小、模型缺失）
+  - GSAP 动画引擎 iframe（加载 CDN + animations.js）
+- [ ] 端到端测试：(⚠️ 需 M1-M3 产出模型文件后才能执行)
 
 ### 交付物
 
-1. 可运行的 Streamlit Web 应用
-2. 完成的推理流程（上传 → 预测 → 展示）
+1. 可运行的 Streamlit Web 应用（含 GSAP 动画）
+2. 完整的推理流程（上传 → 预测 → 营养展示）
 3. 错误处理和加载状态
+4. 绿色水果主题设计系统
+5. WCAG AA 无障碍支持
+6. CSS + GSAP 双重动画降级保障
 
 ### 验证方式
 
@@ -169,7 +210,12 @@ python evaluation/evaluate.py
 cd webapp
 streamlit run app.py
 # 浏览器打开 http://localhost:8501
-# 上传水果图片 → 点击"识别水果" → 查看预测结果和营养信息
+# 1. 查看 Hero 标题入场动画（GSAP fade-in）
+# 2. 上传水果图片 → 查看预览
+# 3. 点击"识别水果" → 查看结果卡片揭示动画 + 置信度条填充 + 营养卡片交错入场
+# 4. 上传非图片文件（.txt）→ 查看错误提示
+# 5. 系统开启"减少动画"→ 动画即时完成
+# 6. Tab 键导航验证键盘可达性
 ```
 
 ---
@@ -182,10 +228,10 @@ streamlit run app.py
 
 - [ ] 端到端流程测试：数据加载 → 训练 → 评估 → Web 推理
 - [ ] 多种水果图片测试（含非训练集图片，验证鲁棒性）
-- [ ] 完善 `README.md`：项目介绍、环境配置、运行指南、目录说明
-- [ ] 定稿 `docs/SPEC.md`
-- [ ] 定稿 `docs/MILESTONES.md`
-- [ ] 定稿 `docs/MVP.md`
+- [x] 完善 `README.md`：项目介绍、环境配置、运行指南、目录说明
+- [x] 定稿 `docs/SPEC.md`
+- [x] 定稿 `docs/MILESTONES.md`
+- [x] 定稿 `docs/MVP.md`
 - [ ] 撰写项目报告（`.docx`）：
   - 封面：题目、学号、姓名、日期
   - 第一章：项目背景与任务简介

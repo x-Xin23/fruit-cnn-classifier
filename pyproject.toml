@@ -23,8 +23,8 @@ dev = [
     "jupyter>=1.0",
 ]
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "python-docx>=0.8",
     "python-pptx>=0.6",
     "jupyter>=1.0",
