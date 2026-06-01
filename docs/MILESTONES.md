@@ -54,7 +54,7 @@ python -c "from data.fruit_dataset import FruitDataset; \
 
 ## M2: 模型开发与训练
 
-**目标**: CNN 模型定义完成，30 轮训练收敛，达到预期准确率。
+**目标**: CNN 模型定义完成，50 轮训练收敛，达到预期准确率。
 
 ### 任务清单
 
@@ -71,7 +71,7 @@ python -c "from data.fruit_dataset import FruitDataset; \
   - Early Stopping（patience=10）
   - CSV 日志输出到 `models/training_log.csv`
 - [ ] 实现 `src/training/train.py`：训练入口脚本
-- [ ] 运行训练 30 个 epoch
+- [ ] 运行训练 50 个 epoch（早停可能提前终止）
 - [ ] 保存最佳模型为 `models/fruit_cnn.pth`
 
 ### 交付物
@@ -86,9 +86,9 @@ python -c "from data.fruit_dataset import FruitDataset; \
 cd src
 python training/train.py
 # 预期最后几轮输出:
-# Epoch 28/30 | Train Loss: 0.152 | Train Acc: 94.2% | Val Loss: 0.218 | Val Acc: 92.1%
-# Epoch 29/30 | Train Loss: 0.145 | Train Acc: 94.5% | Val Loss: 0.215 | Val Acc: 92.3%
-# Epoch 30/30 | Train Loss: 0.138 | Train Acc: 94.8% | Val Loss: 0.212 | Val Acc: 92.5%
+# Epoch 48/50 | Train Loss: 0.152 | Train Acc: 94.2% | Val Loss: 0.218 | Val Acc: 92.1%
+# Epoch 49/50 | Train Loss: 0.145 | Train Acc: 94.5% | Val Loss: 0.215 | Val Acc: 92.3%
+# Epoch 50/50 | Train Loss: 0.138 | Train Acc: 94.8% | Val Loss: 0.212 | Val Acc: 92.5%
 ```
 
 ---

@@ -40,7 +40,7 @@
 ### 模型训练
 - **FR-05**: 构建 4 层 CNN 模型（Conv → BatchNorm → ReLU → MaxPool）
 - **FR-06**: 使用 CrossEntropyLoss 损失函数、Adam 优化器
-- **FR-07**: 训练 30 个 epoch，每 epoch 记录训练/验证的 loss 和 accuracy
+- **FR-07**: 训练 50 个 epoch（早停 patience=10），每 epoch 记录训练/验证的 loss 和 accuracy
 - **FR-08**: 支持学习率衰减（ReduceLROnPlateau）和早停（Early Stopping）
 - **FR-09**: 自动保存验证集准确率最高的模型 checkpoint
 
@@ -61,7 +61,7 @@
 
 | 编号 | 要求 | 指标 |
 |---|---|---|
-| **NFR-01** | CPU 上可完成训练 | 30 epoch ≤ 2 小时 |
+| **NFR-01** | CPU 上可完成训练 | 50 epoch ≤ 2 小时（实际早停可能提前终止） |
 | **NFR-02** | Web 推理响应快 | 单张图片 ≤ 3 秒 |
 | **NFR-03** | 离线可用 | 无外部 API 依赖 |
 | **NFR-04** | 代码注释规范 | 所有公开函数含 docstring |
@@ -372,7 +372,7 @@ class Config:
 
     # 训练超参数
     batch_size: int                 # 32
-    num_epochs: int                 # 30
+    num_epochs: int                 # 50
     num_classes: int                # 15
     learning_rate: float            # 0.001
     weight_decay: float             # 1e-4
