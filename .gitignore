@@ -1,0 +1,70 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg-info/
+
+# Virtual environment
+.venv/
+venv/
+env/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Data (too large for git + regenerable)
+data/raw/
+data/processed/
+
+# Models (regenerable from training) — only top-level
+/models/
+*.pth
+*.h5
+*.pt
+*.ckpt
+*.onnx
+
+# Logs
+logs/
+*.log
+training_log.csv
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Streamlit
+.streamlit/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Claude internal files
+.claude/
+
+# PDF and doc files (course materials, not project source)
+*.pdf
+*.docx
+
+# Extracted text artifacts
+pdf*_output.txt
