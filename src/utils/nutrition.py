@@ -21,23 +21,81 @@ CLASS_TO_INDEX: Dict[str, int] = {name: i for i, name in enumerate(CLASS_NAMES)}
 
 # ── Fruits 360 文件夹名 → 标准类名映射 ──
 FRUIT360_TO_STANDARD: Dict[str, str] = {
+    # Apple — 10+ varieties
     "Apple Red Delicious": "Apple",
     "Apple Red Delicious 1": "Apple",
+    "Apple Golden": "Apple",
+    "Apple Golden 1": "Apple",
+    "Apple Golden 2": "Apple",
+    "Apple Golden 3": "Apple",
+    "Apple Granny Smith": "Apple",
+    "Apple Granny Smith 1": "Apple",
+    "Apple Crimson Snow": "Apple",
+    "Apple Red": "Apple",
+    "Apple Red 1": "Apple",
+    "Apple Red 2": "Apple",
+    "Apple Red 3": "Apple",
+    "Apple Yellow": "Apple",
+    "Apple Yellow 1": "Apple",
+    "Apple Pink Lady": "Apple",
+    "Apple Braeburn": "Apple",
+    "Apple Hit": "Apple",
+    # Banana
     "Banana": "Banana",
+    "Banana Red": "Banana",
+    "Banana Lady Finger": "Banana",
+    # Orange
     "Orange": "Orange",
+    # Grape — 3+ varieties
     "Grape White": "Grape",
     "Grape White 1": "Grape",
+    "Grape White 2": "Grape",
+    "Grape White 3": "Grape",
+    "Grape White 4": "Grape",
+    "Grape Pink": "Grape",
+    "Grape Blue": "Grape",
+    # Strawberry
     "Strawberry": "Strawberry",
+    "Strawberry Wedge": "Strawberry",
+    # Kiwi
     "Kiwi": "Kiwi",
+    # Watermelon
     "Watermelon": "Watermelon",
+    # Peach — 2+ varieties
     "Peach": "Peach",
+    "Peach 1": "Peach",
+    "Peach 2": "Peach",
+    "Peach Flat": "Peach",
+    # Pear — 8+ varieties
     "Pear": "Pear",
+    "Pear 1": "Pear",
+    "Pear Red": "Pear",
+    "Pear Kaiser": "Pear",
+    "Pear Abate": "Pear",
+    "Pear Forelle": "Pear",
+    "Pear Monster": "Pear",
+    "Pear Williams": "Pear",
+    "Pear Stone": "Pear",
+    # Mango — 2+ varieties
     "Mango": "Mango",
+    "Mango Red": "Mango",
+    # Pineapple
     "Pineapple": "Pineapple",
+    "Pineapple Mini": "Pineapple",
+    # Cherry — 4+ varieties
     "Cherry": "Cherry",
     "Cherry 1": "Cherry",
+    "Cherry 2": "Cherry",
+    "Cherry Rainier": "Cherry",
+    "Cherry Wax Yellow": "Cherry",
+    "Cherry Wax Red": "Cherry",
+    "Cherry Wax Black": "Cherry",
+    # Lemon
     "Lemon": "Lemon",
+    "Lemon Meyer": "Lemon",
+    # Blueberry
     "Blueberry": "Blueberry",
+    # Pomegranate
     "Pomegranate": "Pomegranate",
 }
 

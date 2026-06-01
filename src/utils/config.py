@@ -40,7 +40,7 @@ class Config:
 
     # ── 训练超参数 ──
     batch_size: int = 32
-    num_epochs: int = 30
+    num_epochs: int = 50
     num_classes: int = 15
     learning_rate: float = 0.001
     weight_decay: float = 1e-4

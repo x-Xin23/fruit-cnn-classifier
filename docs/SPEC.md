@@ -97,7 +97,7 @@ Input: RGB 128×128×3
 | 学习率衰减 | ReduceLROnPlateau (factor=0.1, patience=5) |
 | 早停 | patience=10 |
 | Batch Size | 32 |
-| Epochs | 30 |
+| Epochs | 50（早停 patience=10，实际可能 25-40 轮收敛） |
 | 总参数量 | ~424K |
 
 ### 性能目标
@@ -130,7 +130,7 @@ checkpoint = {
 
 - **数据集**: [Fruits 360](https://www.kaggle.com/datasets/moltean/fruits) by Horea Muresan
 - **特点**: 图片已居中在白底上，100×100 像素，质量高、类别平衡
-- **总规模**: ~90,000 张 / 131 类（本工程选用 15 类子集，约 9,500 张）
+- **总规模**: ~90,000 张 / 131 类（本工程选用 15 类子集，纳入所有品种变体后约 15,000-20,000 张）
 
 ### 选用的 15 种水果
 
@@ -159,7 +159,7 @@ checkpoint = {
 3. 图像 Resize 至 128×128 像素
 4. Tensor 化（C×H×W）
 5. 归一化：mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-6. 训练集增强：RandomHorizontalFlip(p=0.5), RandomRotation(degrees=10)
+6. 训练集增强：RandomHorizontalFlip(p=0.5), RandomRotation(degrees=10), ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.05)
 
 ## 8. Web 应用规格
 
