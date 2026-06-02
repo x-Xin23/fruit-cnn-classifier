@@ -44,7 +44,7 @@ export default function HeroUpload({ onImageSelect }: HeroUploadProps) {
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="flex flex-col items-center mb-10 mt-6 md:mt-12"
+        className="flex flex-col items-center mb-10 mt-16 md:mt-24"
       >
         <h1 className="font-serif text-5xl md:text-7xl mb-6 text-center leading-tight text-transparent bg-clip-text bg-gradient-to-br from-emerald-900 via-teal-800 to-stone-800">
           探寻鲜果真味

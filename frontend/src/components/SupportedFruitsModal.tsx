@@ -43,29 +43,26 @@ export default function SupportedFruitsModal({ isOpen, onClose }: SupportedFruit
             
             <div className="p-8 max-h-[65vh] overflow-y-auto">
               <p className="text-base text-stone-500 leading-relaxed mb-8">
-                本系统依托前沿视觉识别网络，具备泛化的生物识别能力，支持甄别各类温带与热带生境下的常见及珍稀果物。基准数据库覆盖（但不限于）以下品类：
+                本系统基于 4 层 CNN 模型（Fruits 360 数据集，测试准确率 99.90%），支持识别以下 15 种常见水果：
               </p>
               
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-6 gap-x-8">
                 {[
-                  { name: '牛油果', en: 'Avocado' },
-                  { name: '车厘子', en: 'Cherry' },
-                  { name: '奇异果', en: 'Kiwi' },
-                  { name: '蓝莓', en: 'Blueberry' },
-                  { name: '葡萄柚', en: 'Grapefruit' },
-                  { name: '草莓', en: 'Strawberry' },
-                  { name: '香蕉', en: 'Banana' },
                   { name: '苹果', en: 'Apple' },
+                  { name: '香蕉', en: 'Banana' },
+                  { name: '蓝莓', en: 'Blueberry' },
+                  { name: '樱桃', en: 'Cherry' },
+                  { name: '葡萄', en: 'Grape' },
+                  { name: '猕猴桃', en: 'Kiwi' },
+                  { name: '柠檬', en: 'Lemon' },
                   { name: '芒果', en: 'Mango' },
-                  { name: '百香果', en: 'Passion Fruit' },
-                  { name: '无花果', en: 'Fig' },
-                  { name: '番木瓜', en: 'Papaya' },
-                  { name: '西柚', en: 'Pomelo' },
-                  { name: '石榴', en: 'Pomegranate' },
+                  { name: '橙子', en: 'Orange' },
+                  { name: '桃子', en: 'Peach' },
+                  { name: '梨', en: 'Pear' },
                   { name: '菠萝', en: 'Pineapple' },
-                  { name: '红毛丹', en: 'Rambutan' },
-                  { name: '黑莓', en: 'Blackberry' },
-                  { name: '覆盆子', en: 'Raspberry' }
+                  { name: '石榴', en: 'Pomegranate' },
+                  { name: '草莓', en: 'Strawberry' },
+                  { name: '西瓜', en: 'Watermelon' }
                 ].map((fruit, idx) => (
                   <div key={idx} className="border-b border-stone-100 pb-3 group">
                     <div className="text-sm font-bold text-stone-700 group-hover:text-emerald-700 transition-colors">{fruit.name}</div>
