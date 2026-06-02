@@ -20,21 +20,23 @@ export default function FruitResult({ info, imageUrl, onReset }: FruitResultProp
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 pt-2 pb-24">
-      <motion.button
-        onClick={onReset}
-        whileHover={{ x: -4 }}
-        className="flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-stone-400 mb-8 -mt-4 hover:text-emerald-700 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        重新解析
-      </motion.button>
+    <div className="w-full pt-2 pb-24">
+      <div className="px-4 md:px-8 mb-8">
+        <motion.button
+          onClick={onReset}
+          whileHover={{ x: -4 }}
+          className="flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-stone-400 hover:text-emerald-700 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          重新解析
+        </motion.button>
+      </div>
 
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="flex flex-col gap-10 lg:gap-12"
+        className="flex flex-col gap-10 lg:gap-12 max-w-6xl mx-auto px-4"
       >
         {/* Header Panel */}
         <div className="border-b border-stone-200 pb-10 text-center max-w-4xl mx-auto w-full">
