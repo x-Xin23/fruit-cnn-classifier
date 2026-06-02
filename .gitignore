@@ -1,4 +1,4 @@
-# Python
+﻿# Python
 __pycache__/
 *.py[cod]
 *$py.class
@@ -35,9 +35,10 @@ Desktop.ini
 data/raw/
 data/processed/
 
-# Models (regenerable from training) — only top-level
-/models/
+# Models (regenerable from training) 鈥?only top-level
+/models/*
 *.pth
+!models/fruit_cnn.pth
 *.h5
 *.pt
 *.ckpt
@@ -68,3 +69,6 @@ temp/
 
 # Extracted text artifacts
 pdf*_output.txt
+
+# CUDA wheel (local only)
+torch_cuda.whl
