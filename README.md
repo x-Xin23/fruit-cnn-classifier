@@ -8,7 +8,7 @@
 
 - **数据集**: [Kaggle Fruits 360](https://www.kaggle.com/datasets/moltean/fruits)（15 类子集）
 - **模型**: 4 层 CNN，PyTorch 实现
-- **应用**: Streamlit Web 界面
+- **应用**: 双前端 — React SPA (Fructus 鲜果志) + Streamlit Web 界面
 
 ## 项目结构
 
@@ -21,7 +21,19 @@ ending/
 │   ├── evaluation/         # 评估与可视化
 │   ├── inference/          # 推理预测
 │   └── utils/              # 配置、营养数据
-├── webapp/                 # Streamlit Web 应用
+├── frontend/               # React SPA 前端 (Fructus 鲜果志)
+│   ├── src/
+│   │   ├── App.tsx         # 主入口
+│   │   ├── components/     # UI 组件（上传、加载、结果、水果目录）
+│   │   ├── types.ts        # TypeScript 类型定义
+│   │   └── index.css       # 全局样式（Tailwind + 自定义字体）
+│   ├── server.ts           # Express 后端（桥接前端与 FastAPI 推理服务）
+│   ├── vite.config.ts
+│   └── package.json
+├── api/                    # FastAPI 推理后端
+│   ├── main.py             # API 入口
+│   └── inference.py        # 模型加载与推理
+├── webapp/                 # Streamlit Web 应用（备用前端）
 │   ├── app.py              # 主入口
 │   ├── utils.py            # 模型加载、推理、营养数据
 │   ├── assets/             # 样式、主题、GSAP 动画
@@ -45,6 +57,7 @@ ending/
 ### 环境要求
 
 - Python >= 3.10
+- Node.js >= 18
 - [uv](https://github.com/astral-sh/uv)（推荐）或 pip
 
 ### 安装
@@ -58,8 +71,12 @@ uv venv
 .venv\Scripts\activate   # Windows
 # source .venv/bin/activate   # macOS/Linux
 
-# 安装依赖
+# 安装 Python 依赖
 uv pip install -r requirements.txt
+
+# 安装前端依赖
+cd frontend
+npm install
 ```
 
 ### 训练模型
@@ -71,7 +88,23 @@ python training/train.py
 
 训练完成后，模型保存为 `models/fruit_cnn.pth`。
 
-### 运行 Web 应用
+### 运行 React SPA 前端（推荐）
+
+需要同时启动 FastAPI 后端和 Express 前端：
+
+```bash
+# 终端 1：启动 FastAPI 推理后端
+cd api
+uvicorn main:app --reload --port 8000
+
+# 终端 2：启动 Express + Vite 前端
+cd frontend
+npm run dev
+```
+
+浏览器打开 <http://localhost:3000>，上传水果图片即可识别。
+
+### 运行 Streamlit Web 应用（备用）
 
 ```bash
 cd webapp
@@ -95,8 +128,13 @@ streamlit run app.py
 ## 技术栈
 
 - **PyTorch** — 深度学习框架
-- **Streamlit** — Web 应用框架
-- **GSAP** — JavaScript 动画库（入场动画、交错效果）
+- **React 19 + TypeScript** — SPA 前端框架
+- **Tailwind CSS v4** — 原子化 CSS 框架
+- **Motion (Framer Motion)** — React 动画库
+- **Express.js** — Node.js 后端（桥接前端与推理服务）
+- **FastAPI** — Python 推理 API 服务
+- **Streamlit** — 备用 Web 应用框架
+- **GSAP** — JavaScript 动画库（Streamlit 版本）
 - **scikit-learn** — 评估指标
 - **matplotlib / seaborn** — 可视化
 

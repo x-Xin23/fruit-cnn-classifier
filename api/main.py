@@ -12,7 +12,7 @@ app = FastAPI(title="Fruit Recognition API")
 # Allow frontend dev server
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:8501"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
