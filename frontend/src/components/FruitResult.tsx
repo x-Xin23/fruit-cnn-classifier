@@ -51,8 +51,8 @@ export default function FruitResult({ info, imageUrl, onReset }: FruitResultProp
         </div>
 
         <div className="flex flex-col gap-8 items-center">
-          {/* Image Section - Centered */}
-          <div className="w-full max-w-md cursor-pointer">
+          {/* Image Section - Centered, smaller */}
+          <div className="w-full max-w-[260px] cursor-pointer">
             <div className="aspect-square w-full relative group flex items-center justify-center">
               <img
                 src={imageUrl}
@@ -62,12 +62,12 @@ export default function FruitResult({ info, imageUrl, onReset }: FruitResultProp
 
               {/* Trivia Overlay on Hover */}
               {info.trivia && (
-                <div className="absolute inset-x-4 bottom-4 md:inset-x-8 md:bottom-8 bg-white/95 backdrop-blur-xl rounded-3xl p-6 md:p-8 border border-white opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 shadow-2xl pointer-events-none">
-                  <h3 className="text-sm font-bold tracking-wider text-amber-700 mb-3 flex items-center gap-2">
-                    <Lightbulb className="w-4 h-4" />
+                <div className="absolute inset-x-3 bottom-3 md:inset-x-5 md:bottom-5 bg-white/95 backdrop-blur-xl rounded-2xl p-4 md:p-5 border border-white opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 shadow-2xl pointer-events-none">
+                  <h3 className="text-xs font-bold tracking-wider text-amber-700 mb-2 flex items-center gap-2">
+                    <Lightbulb className="w-3.5 h-3.5" />
                     科普拓展阅读
                   </h3>
-                  <p className="text-stone-700 font-medium leading-relaxed text-sm">
+                  <p className="text-stone-700 font-medium leading-relaxed text-xs">
                     {info.trivia}
                   </p>
                 </div>
@@ -75,12 +75,12 @@ export default function FruitResult({ info, imageUrl, onReset }: FruitResultProp
             </div>
           </div>
 
-          {/* Info Panels Section - Below Image */}
-          <div className="w-full max-w-2xl grid grid-cols-1 md:grid-cols-2 gap-3 items-stretch">
+          {/* Info Panels Section - Below Image, larger */}
+          <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
 
             {/* Panel 1: Natural Index */}
-            <div className="bg-white rounded-3xl p-6 md:p-7 shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-stone-100 flex flex-col justify-center">
-              <h3 className="text-lg font-bold text-stone-800 mb-5 flex items-center gap-2">
+            <div className="bg-white rounded-3xl p-7 md:p-9 shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-stone-100 flex flex-col justify-center">
+              <h3 className="text-xl font-bold text-stone-800 mb-6 flex items-center gap-2">
                 <Activity className="w-5 h-5 text-emerald-600/70" />
                 营养成分评估
               </h3>
@@ -131,12 +131,12 @@ export default function FruitResult({ info, imageUrl, onReset }: FruitResultProp
 
             {/* Panel 2: Superpowers */}
             {info.superpowers && info.superpowers.length > 0 && (
-              <div className="bg-white rounded-3xl p-6 md:p-7 shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-stone-100 flex-col flex justify-center">
-                <h3 className="text-lg font-bold text-stone-800 mb-5 flex items-center gap-2">
+              <div className="bg-white rounded-3xl p-7 md:p-9 shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-stone-100 flex-col flex justify-center">
+                <h3 className="text-xl font-bold text-stone-800 mb-6 flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-amber-600/70" />
                   核心功效与价值
                 </h3>
-                <ul className="space-y-4">
+                <ul className="space-y-5">
                   {info.superpowers.map((power, i) => (
                     <motion.li
                       initial={{ opacity: 0, x: -10 }}
@@ -145,10 +145,10 @@ export default function FruitResult({ info, imageUrl, onReset }: FruitResultProp
                       key={i}
                       className="flex items-start gap-4"
                     >
-                      <div className="mt-0.5 bg-emerald-50 rounded-full p-1 border border-emerald-100 flex-shrink-0">
-                        <Sprout className="w-3.5 h-3.5 text-emerald-600" />
+                      <div className="mt-0.5 bg-emerald-50 rounded-full p-1.5 border border-emerald-100 flex-shrink-0">
+                        <Sprout className="w-4 h-4 text-emerald-600" />
                       </div>
-                      <span className="text-stone-600 text-sm font-medium leading-relaxed mt-0.5">
+                      <span className="text-stone-600 text-base font-medium leading-relaxed mt-0.5">
                         {power}
                       </span>
                     </motion.li>
