@@ -171,14 +171,15 @@ webapp/
 ├── app.py                    # 主入口（页面配置、session state、流程编排）
 ├── utils.py                  # 模型缓存加载、图像预处理、推理、营养数据
 ├── assets/
-│   ├── style.css             # 自定义 CSS（绿色主题、响应式、无障碍）
-│   ├── theme.py              # 设计 token + CSS 注入函数
-│   └── animations.js         # GSAP 动画定义（MutationObserver）
+│   ├── style.css             # 自定义 CSS（@import 字体、水果卡片网格、装饰元素、will-change）
+│   ├── theme.py              # 设计 token（颜色、字体、间距）+ CSS 注入函数
+│   └── animations.js         # GSAP 动画引擎（master Timeline + ScrollTrigger + 视差 + 微交互）
 ├── components/
 │   ├── __init__.py           # 组件导出
 │   ├── upload.py             # 图片上传 + 验证 + 预览
 │   ├── result.py             # 识别结果卡片 + 置信度进度条
-│   └── nutrition.py          # 营养价值卡片网格 + 功效列表
+│   ├── nutrition.py          # 营养价值卡片网格 + 功效列表
+│   └── fruit_gallery.py      # 15 种水果展示网格（ScrollTrigger.batch() 交错入场）
 └── requirements.txt          # Web 精简依赖
 ```
 
@@ -187,27 +188,26 @@ webapp/
 ```
 ┌──────────────────────────────────────────┐
 │  🍎 水果识别与营养信息展示系统              │
-│  Powered by Deep Learning (CNN)           │
+│  上传水果图片，即刻识别种类并查看营养价值    │
+│  [CNN 深度学习 · 15 种水果 · 99.9% 准确率] │
 ├──────────────────────────────────────────┤
-│                                           │
+│  支持识别的 15 种水果                      │
+│  ┌──┐ ┌──┐ ┌──┐ ┌──┐ ┌──┐              │
+│  │🍎│ │🍌│ │🍊│ │🍇│ │🍓│ ...          │
+│  └──┘ └──┘ └──┘ └──┘ └──┘              │
+├──────────────────────────────────────────┤
 │  [上传水果图片]  (拖拽或点击选择)           │
-│                                           │
 │  [已上传图片预览]                          │
-│                                           │
 │  [ 🔍 识别水果 ]  按钮                     │
-│                                           │
 │  ─────── 识别结果 ───────                  │
 │  🍎 苹果 (Apple)                          │
 │  置信度: ████████████ 95.2%               │
-│                                           │
 │  ─────── 营养价值 ───────                  │
 │  | 项目      | 含量            |          │
 │  | 热量      | 52 kcal/100g   |          │
 │  | 维生素C   | 4.6 mg/100g    |          │
 │  | 膳食纤维  | 2.4 g/100g     |          │
 │  | 主要功效  | 促进消化、降胆固醇 |        │
-│  ─────────────────────────────           │
-│                                           │
 │  [重新上传]                               │
 └──────────────────────────────────────────┘
 ```
@@ -215,81 +215,105 @@ webapp/
 ### 用户流程
 
 1. 用户在浏览器打开 Web 应用
-2. 用户上传一张水果图片（JPG/PNG）
-3. 用户点击"识别水果"按钮
-4. 系统调用 CNN 模型进行推理
-5. 系统展示预测结果（水果名称 + 置信度）
-6. 系统展示该水果的营养价值信息
-7. 用户可上传新图片重复操作
+2. 页面加载：Hero + 水果展示区 + 上传区 master Timeline 入场
+3. 用户浏览 15 种水果展示（ScrollTrigger 滚动触发交错入场）
+4. 用户上传一张水果图片（JPG/PNG）
+5. 用户点击"识别水果"按钮
+6. 系统调用 CNN 模型进行推理
+7. 系统展示预测结果（卡片→emoji 弹性→置信度条 Timeline）
+8. 系统展示该水果的营养价值信息
+9. 用户可上传新图片重复操作
 
 ### 交互状态
 
 | 状态 | 界面表现 |
 |---|---|
-| 初始 | 显示标题和上传组件，无识别结果 |
+| 初始 | 显示标题、水果展示区和上传组件，无识别结果 |
 | 加载中 | 显示 Spinner 加载动画 |
-| 成功 | 显示识别结果 + 营养信息（GSAP 动画入场） |
+| 成功 | 显示识别结果 + 营养信息（GSAP Timeline 入场） |
 | 错误 | 显示错误提示（如非图片文件） |
 
 ### 设计系统
 
-#### 色彩方案（绿色水果主题）
+**美学方向**：有机植物学 —— 温暖奶油底色、深森林绿、赤陶点缀、衬线标题。有生命力和自然感，非通用 Material Design。
+
+#### 色彩方案
 
 | Token | 色值 | 用途 |
 |---|---|---|
-| `--primary-dark` | `#1B5E20` | 标题文字、深色强调 |
-| `--primary` | `#2E7D32` | 主按钮、边框 |
-| `--primary-light` | `#4CAF50` | 悬停态、浅色强调 |
-| `--accent` | `#FF6F00` | 交互高亮 |
-| `--accent-light` | `#FFB300` | focus 轮廓 |
-| `--bg` | `#F1F8E9` | 页面背景 |
+| `--primary-dark` | `#1a3a2a` | 标题文字、深色强调 |
+| `--primary` | `#2d6a4f` | 主按钮、边框 |
+| `--primary-light` | `#52b788` | 悬停态、浅色强调 |
+| `--primary-lighter` | `#b7e4c7` | 上传区边框、轻装饰 |
+| `--accent` | `#e76f51` | 赤陶交互高亮 |
+| `--accent-light` | `#f4a261` | 琥珀 focus 轮廓 |
+| `--bg` | `#faf8f0` | 暖奶油页面背景 |
+| `--bg-alt` | `#f0ece2` | 深奶油辅助背景 |
 | `--card-bg` | `#FFFFFF` | 卡片背景 |
-| `--text` | `#1B1B1B` | 正文 |
-| `--text-secondary` | `#616161` | 次要文字 |
-| `--error` | `#D32F2F` | 错误提示 |
-| `--success` | `#388E3C` | 成功勾选 |
+| `--text` | `#1a1a1a` | 正文 |
+| `--text-secondary` | `#5a5a5a` | 次要文字 |
+| `--error` | `#c1292e` | 错误提示 |
+| `--success` | `#2d6a4f` | 成功勾选 |
+
+背景使用 CSS radial-gradient mesh（两层椭圆渐变）营造有机深度感。Google Fonts 通过 CSS `@import` 引入。
 
 #### 排版
 
-- 字体：`'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif`
-- 标题：2.2rem / 700 weight
-- 副标题：1rem / 400 weight
-- 正文：0.95-1.05rem
+- 标题字体：`Playfair Display` / `Noto Serif SC`（Google Fonts，衬线，编辑感）
+- 正文字体：`DM Sans` / `Noto Sans SC`（Google Fonts，几何无衬线，现代）
+- Hero 标题：2.5rem / 700 weight / letter-spacing -0.5px
+- Hero 副标题：0.95rem / 400 weight
+- 正文：0.92rem / 400 weight / line-height 1.7
 
-### 动画规格（GSAP）
+#### Hero 区域
 
-GSAP 通过 `st.components.v1.html()` 创建隐藏 iframe，利用 `window.parent.document` 访问主文档 DOM。MutationObserver 监听 Streamlit 重渲染后的新 DOM 节点，自动触发匹配的入场动画。
+全宽圆角容器，内部有三个径向渐变装饰圆（右上绿 + 左下琥珀 + 左中赤陶），渐变背景 + 1px 半透明边框。包含标题、副标题、标签带（准确率数据）。装饰圆通过 ScrollTrigger scrub 实现视差效果。
+
+#### 水果展示区
+
+CSS Grid 5 列布局，15 个水果卡片（emoji + 中文名 + 英文名）。GSAP `ScrollTrigger.batch()` 滚动触发交错入场（`from: "center"` 从中心扩散），hover 时 GSAP 驱动 scale + translateY 微交互。
+
+### 动画规格（GSAP 全家桶）
+
+**插件注册**：`gsap.registerPlugin(ScrollTrigger, ScrollToPlugin)`
+
+**架构**：`gsap.matchMedia()` 处理 `prefers-reduced-motion`。Master Timeline 编排页面加载入场序列。ScrollTrigger 滚动驱动水果卡片和内容区入场。MutationObserver 监听 Streamlit 重渲染后的新 DOM 节点。
 
 | 动画 | 触发时机 | 技术 | 时长 | 缓动 |
 |---|---|---|---|---|
-| Hero 标题入场 | 页面加载 | GSAP `from()` | 0.8s | `power3.out` |
-| Hero 副标题入场 | 页面加载 | GSAP `from()` | 0.6s | `power3.out` |
-| 上传区入场 | 页面加载 | GSAP `from()` | 0.5s | `power2.out` |
-| 上传区悬停 | 用户 hover | CSS `:hover` | 0.3s | ease |
-| 结果卡片揭示 | 预测完成 | GSAP `from()` | 0.6s | `power3.out` |
-| 置信度条填充 | 预测完成 | GSAP `to()` | 1.2s | `power2.out` |
-| 滚动至结果 | 预测完成 | GSAP `scrollTo` | 0.8s | `power2.inOut` |
-| 营养卡片入场 | 预测完成 | GSAP `from()` stagger 0.1s | 0.5s | `power2.out` |
-| 功效列表入场 | 预测完成 | GSAP `from()` stagger 0.08s | 0.4s | `power2.out` |
-| 按钮悬停/按压 | 用户交互 | CSS `:hover`/`:active` | 0.3s | ease |
+| Hero 容器 | 页面加载 | Master Timeline | 0.8s | `power3.out` |
+| Hero 标题 | 页面加载 | Master Timeline | 0.7s | `expo.out` |
+| Hero 副标题 | 页面加载 | Master Timeline | 0.5s | `power3.out` |
+| Hero 标签带 | 页面加载 | Master Timeline | 0.5s | `back.out(2)` |
+| Hero 装饰圆视差 | 滚动 | ScrollTrigger scrub: 1.5 | — | `none` |
+| 上传区入场 | 页面加载 | Master Timeline | 0.6s | `power2.out` |
+| 水果卡片入场 | 滚动 | `ScrollTrigger.batch()` stagger `from: "center"` | 0.5s | `back.out(1.4)` |
+| 水果卡片 hover | 用户 hover | GSAP `to(scale, y)` | 0.3s | `power2.out` |
+| 分隔线入场 | 滚动 | ScrollTrigger `from(autoAlpha, scaleX)` | 0.5s | `expo.out` |
+| 结果卡片揭示 | 预测完成 | Timeline: 卡片→emoji→名称→置信度条 | 0.7s/0.55s/0.4s/1.2s | `power3.out`/`back.out(2.5)`/`expo.out` |
+| 滚动至结果 | 预测完成 | GSAP `scrollTo` (Timeline callback) | 0.7s | `power2.inOut` |
+| 营养卡片入场 | 滚动 | ScrollTrigger `from` stagger `from: "center"` | 0.55s | `back.out(1.4)` |
+| 功效列表入场 | 滚动 | ScrollTrigger `from(autoAlpha, x)` stagger | 0.4s | `power2.out` |
+| 描述文本入场 | 滚动 | ScrollTrigger `from(autoAlpha, y)` | 0.5s | `power2.out` |
 
 ### 降级策略
 
 | 场景 | 降级行为 |
 |---|---|
 | GSAP CDN 不可达 | CSS `@keyframes` 动画自动接管 |
-| iframe 加载失败 | 纯 Streamlit HTML + CSS 样式，功能完全可用 |
-| 用户开启 `prefers-reduced-motion` | 所有动画时长降至 0.01s（GSAP + CSS 双重覆盖） |
+| iframe 加载失败 | 纯 HTML + CSS 样式，功能完全可用 |
+| 用户开启 `prefers-reduced-motion` | `gsap.matchMedia()` + CSS `@media` 双重覆盖，所有动画时长为 0 |
 | 模型文件未训练 | 捕获 `FileNotFoundError`，展示友好错误提示 |
 
 ### 无障碍
 
-- **颜色对比度**: 标题 7.2:1 / 正文 16.7:1（WCAG AA 合规）
-- **焦点可见**: `:focus-visible` 橙色 3px 轮廓
-- **屏幕阅读器**: `aria-label` 在上传区、进度条、结果卡片；`role="alert"` 在错误消息；`role="progressbar"` 在置信度条
-- **减少动画**: `@media (prefers-reduced-motion: reduce)` + GSAP 检测
+- **颜色对比度**: 标题 `#1a3a2a` on `#faf8f0` = 10.5:1 / 正文 `#1a1a1a` on `#ffffff` = 17.4:1（WCAG AAA 合规）
+- **焦点可见**: `:focus-visible` 琥珀色 3px 轮廓
+- **屏幕阅读器**: `aria-label` 在上传区、进度条、结果卡片、水果卡片；`role="alert"` 在错误消息；`role="progressbar"` 在置信度条
+- **减少动画**: `gsap.matchMedia()` + `@media (prefers-reduced-motion: reduce)` 双重覆盖
 - **图片 alt**: 所有图片含描述性 `alt` 文本
 - **键盘导航**: 完整 Tab 序列支持
+- **性能**: `will-change: transform` 在动画元素上，GPU 提升
 
 ## 9. 营养数据规格
 

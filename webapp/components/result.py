@@ -68,15 +68,13 @@ def _render_top3(probabilities: np.ndarray):
     top3_idx = probabilities.argsort()[-3:][::-1]
 
     st.markdown("""
-    <div style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-secondary);">
-        其他可能类别:
-    </div>
+    <div class="top3-label">其他可能类别</div>
     """, unsafe_allow_html=True)
 
     for idx in top3_idx:
         prob = probabilities[idx] * 100
         st.markdown(
-            f'<div style="font-size:0.85rem; padding:2px 0;">'
+            f'<div class="top3-item">'
             f'&nbsp;&nbsp;{CLASS_NAMES_ZH[idx]} ({CLASS_NAMES[idx]}): {prob:.1f}%'
             f'</div>',
             unsafe_allow_html=True,

@@ -129,14 +129,15 @@ webapp/
 ├── app.py                    # 主入口（页面配置、session state、流程编排）
 ├── utils.py                  # 模型缓存加载、图像预处理、推理、营养数据
 ├── assets/
-│   ├── style.css             # 自定义 CSS（绿色主题、响应式、无障碍、CSS fallback）
+│   ├── style.css             # 自定义 CSS（@import 字体、水果卡片网格、装饰元素、will-change）
 │   ├── theme.py              # 设计 token（颜色、字体、间距）+ CSS 注入函数
-│   └── animations.js         # GSAP 动画定义（MutationObserver 监听动态 DOM）
+│   └── animations.js         # GSAP 动画引擎（master Timeline + ScrollTrigger + 视差 + 微交互）
 ├── components/
 │   ├── __init__.py           # 组件导出
 │   ├── upload.py             # 图片上传 + 验证 + 预览
 │   ├── result.py             # 识别结果卡片 + 置信度进度条
-│   └── nutrition.py          # 营养价值卡片网格 + 功效列表
+│   ├── nutrition.py          # 营养价值卡片网格 + 功效列表
+│   └── fruit_gallery.py      # 15 种水果展示网格（ScrollTrigger.batch() 交错入场）
 └── requirements.txt          # Web 精简依赖
 ```
 
@@ -144,10 +145,14 @@ webapp/
 
 | 增强项 | 技术 | 说明 |
 |---|---|---|
-| GSAP 动画 | `st.components.v1.html()` 隐藏 iframe + `window.parent.document` | Hero 入场、结果揭示、置信度条填充、营养卡片交错入场 |
-| 设计系统 | CSS 变量 + 绿色主题 | 水果/自然感色彩，11 个设计 token |
-| 无障碍 | ARIA + `prefers-reduced-motion` + 键盘导航 | WCAG AA 合规，屏幕阅读器完整支持 |
-| 降级策略 | CSS keyframes fallback | GSAP 不可用时 CSS 动画自动接管 |
+| GSAP 全家桶 | `gsap.registerPlugin(ScrollTrigger, ScrollToPlugin)` + `gsap.matchMedia()` | ScrollTrigger 滚动驱动、Timeline 编排、视差 scrub、`autoAlpha`、`back.out`/`expo.out` 缓动 |
+| 水果展示区 | CSS Grid 5 列 + `ScrollTrigger.batch()` | 15 种水果卡片从中心扩散交错入场，GSAP hover 微交互 |
+| Master Timeline | 单一 Timeline 编排 Hero 入场序列 | 容器→标题(expo.out)→副标题→标签带(back.out 弹性)→上传区 |
+| 视差效果 | Hero 装饰圆 `ScrollTrigger scrub: 1.5` | 三个装饰圆随滚动反向移动，营造深度感 |
+| 设计系统 | CSS 变量 + 有机植物学美学 | 暖奶油底色 + 深森林绿 + 赞陶点缀，14 个设计 token，Google Fonts (Playfair Display + DM Sans) |
+| 性能优化 | `will-change: transform` + stagger `from: "center"` | 动画元素 GPU 提升，从中心扩散的 stagger 更有视觉张力 |
+| 无障碍 | ARIA + `gsap.matchMedia()` + 键盘导航 | WCAG AAA 合规（对比度 10.5:1+），屏幕阅读器完整支持 |
+| 降级策略 | CSS keyframes fallback + `gsap.matchMedia()` | GSAP 不可用时 CSS 动画自动接管；`prefers-reduced-motion` 双重覆盖 |
 
 ### 任务清单
 

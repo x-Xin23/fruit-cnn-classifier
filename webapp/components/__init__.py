@@ -3,10 +3,12 @@
 from .upload import render_upload_section, render_reset_button
 from .result import render_prediction_result
 from .nutrition import render_nutrition_info
+from .fruit_gallery import render_fruit_gallery
 
 __all__ = [
     "render_upload_section",
     "render_reset_button",
     "render_prediction_result",
     "render_nutrition_info",
+    "render_fruit_gallery",
 ]

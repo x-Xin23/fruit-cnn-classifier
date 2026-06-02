@@ -50,7 +50,8 @@ def render_nutrition_info(nutrition_data: Optional[Dict]):
 
     # Benefits list
     st.markdown("""
-    <h4 style="color:var(--primary-dark); margin-top:1.5rem; font-size:1.1rem;">
+    <h4 style="color:var(--primary-dark); margin-top:1.5rem; font-size:1.05rem;
+        font-family:var(--font-display); font-weight:600;">
         ✅ 主要功效
     </h4>
     """, unsafe_allow_html=True)
