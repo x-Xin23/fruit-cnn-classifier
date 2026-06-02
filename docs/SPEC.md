@@ -23,7 +23,12 @@
 | 语言 | Python | >= 3.10 |
 | 深度学习框架 | PyTorch + torchvision | >= 2.0 |
 | 包管理 | uv | — |
-| Web 框架 | Streamlit | >= 1.28 |
+| SPA 前端 | React + TypeScript + Tailwind CSS v4 | Node.js >= 18 |
+| SPA 后端 | Express.js + tsx | — |
+| 推理 API | FastAPI + Uvicorn | — |
+| 前端动画 | Motion (Framer Motion) | >= 12 |
+| 前端图标 | Lucide React | — |
+| 备用 Web 框架 | Streamlit | >= 1.28 |
 | 数据处理 | NumPy, Pandas, Pillow | — |
 | 评估指标 | scikit-learn | >= 1.3 |
 | 可视化 | matplotlib, seaborn | — |
@@ -164,7 +169,62 @@ checkpoint = {
 
 ## 8. Web 应用规格
 
-### 文件结构
+本项目提供两套前端实现：
+
+1. **React SPA (Fructus 鲜果志)** — 主前端，位于 `frontend/`，采用 Innocent Drinks 风格设计
+2. **Streamlit Web 应用** — 备用前端，位于 `webapp/`，采用有机植物学风格设计
+
+两者共享同一个 FastAPI 推理后端（`api/`）和同一套 CNN 模型。
+
+### 8.1 React SPA 前端 (Fructus 鲜果志)
+
+#### 文件结构
+
+```
+frontend/
+├── src/
+│   ├── App.tsx               # 主入口，状态管理（IDLE → LOADING → RESULT）
+│   ├── main.tsx              # React 渲染入口
+│   ├── types.ts              # TypeScript 类型定义 (FruitInfo)
+│   ├── index.css             # 全局样式（Tailwind + Google Fonts + CSS 变量）
+│   └── components/
+│       ├── HeroUpload.tsx    # 首页上传组件（点击 + 拖拽，Framer Motion 动画）
+│       ├── LoadingPremium.tsx# 高级感过场加载动画（渐变光柱 + 文字脉动）
+│       ├── FruitResult.tsx   # 营养结果面板（营养成分评估 + 核心功效 + 冷知识）
+│       └── SupportedFruitsModal.tsx # 可解析果物目录弹窗
+├── server.ts                 # Express 后端（桥接前端与 FastAPI 推理服务）
+├── .env.example              # 环境变量配置示例
+├── vite.config.ts            # Vite 配置（proxy → Express）
+├── tsconfig.json             # TypeScript 配置
+├── index.html                # HTML 入口
+└── package.json              # 依赖与脚本
+```
+
+#### 设计风格
+
+**美学方向**：Innocent Drinks 风格 — 高级生活方式感，温暖自然色调，优雅衬线字体。
+
+| 元素 | 说明 |
+|---|---|
+| 字体 | Playfair Display (衬线标题) + Inter (无衬线正文) + Noto Serif SC (中文衬线) |
+| 色彩 | Emerald (翡翠绿) + Teal (青色) + Stone (暖石灰)，背景 `#fcfbf9` |
+| 动画 | Motion (Framer Motion) 弹性入场、渐变光柱加载、hover 微交互 |
+| 交互 | 点击/拖拽上传 → 加载动画 → 营养面板 + 图片 + 冷知识 |
+
+#### 启动方式
+
+```bash
+# 终端 1：启动 FastAPI 推理后端
+cd api && uvicorn main:app --reload --port 8000
+
+# 终端 2：启动 Express + Vite 前端
+cd frontend && npm run dev
+# 浏览器打开 http://localhost:3000
+```
+
+### 8.2 Streamlit Web 应用（备用）
+
+#### 文件结构
 
 ```
 webapp/
@@ -184,6 +244,50 @@ webapp/
 ```
 
 ### 页面布局
+
+#### React SPA 布局 (Fructus 鲜果志)
+
+```
+┌──────────────────────────────────────────────┐
+│  Fructus. 鲜果志        营养提取与识别分析 [?] │
+├──────────────────────────────────────────────┤
+│                                              │
+│           探寻鲜果真味                         │
+│    上传一份水果的照片。我们将为您深度解析       │
+│    其外观特征与核心营养矩阵...                  │
+│                                              │
+│    ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐      │
+│    │                                  │      │
+│    │     点击或拖拽上传影像             │      │
+│    │     JPG, PNG · HIGH RESOLUTION    │      │
+│    │                                  │      │
+│    └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘      │
+│                                              │
+└──────────────────────────────────────────────┘
+
+识别结果页:
+┌──────────────────────────────────────────────┐
+│  [← 重新解析]                                 │
+├──────────────────────────────────────────────┤
+│           Malus domestica                     │
+│             🍎 苹果                            │
+│   "苹果富含膳食纤维和维生素C..."               │
+├──────────────────────────────────────────────┤
+│  ┌──────────┐  ┌─────────────────────────┐   │
+│  │          │  │ 营养成分评估              │   │
+│  │  水果     │  │ 热量  52 kcal  ████░░   │   │
+│  │  图片     │  │ 维C   4.6 mg  ██░░░░   │   │
+│  │          │  │ 纤维  2.4 g    ███░░░   │   │
+│  │ [hover显示│  ├─────────────────────────┤   │
+│  │  冷知识]  │  │ 核心功效与价值            │   │
+│  └──────────┘  │ ◦ 促进消化，富含膳食纤维  │   │
+│                │ ◦ 降低胆固醇...           │   │
+│                │ ◦ 增强免疫力...           │   │
+│                └─────────────────────────┘   │
+└──────────────────────────────────────────────┘
+```
+
+#### Streamlit 布局（备用）
 
 ```
 ┌──────────────────────────────────────────┐
@@ -214,7 +318,20 @@ webapp/
 
 ### 用户流程
 
-1. 用户在浏览器打开 Web 应用
+#### React SPA 流程
+
+1. 用户在浏览器打开 <http://localhost:3000>
+2. 页面加载：Hero 标题 + 上传区 Framer Motion 入场
+3. 用户点击或拖拽上传一张水果图片（JPG/PNG）
+4. 前端将图片 base64 发送至 Express 后端
+5. Express 后端转发至 FastAPI 推理服务（CNN 模型）
+6. 系统展示加载动画（渐变光柱 + "正在解构果物标识..."）
+7. 系统展示识别结果：水果名称 + 营养成分评估面板 + 核心功效 + 冷知识
+8. 用户点击"重新解析"可上传新图片
+
+#### Streamlit 流程（备用）
+
+1. 用户在浏览器打开 <http://localhost:8501>
 2. 页面加载：Hero + 水果展示区 + 上传区 master Timeline 入场
 3. 用户浏览 15 种水果展示（ScrollTrigger 滚动触发交错入场）
 4. 用户上传一张水果图片（JPG/PNG）
@@ -234,6 +351,23 @@ webapp/
 | 错误 | 显示错误提示（如非图片文件） |
 
 ### 设计系统
+
+#### React SPA 设计系统 (Fructus 鲜果志)
+
+**美学方向**：Innocent Drinks 风格 — 高级生活方式感，温暖自然色调，优雅衬线字体，精致的留白与排版。
+
+| Token | 色值 | 用途 |
+|---|---|---|
+| `--color-canvas` | `#fcfbf9` | 页面背景 |
+| `--color-ink` | `#1c1917` | 正文文字 |
+| `--color-surface` | `#ffffff` | 卡片背景 |
+| `--color-border` | `#f5f5f4` | 边框 |
+
+字体：`Playfair Display` (衬线标题) + `Inter` (无衬线正文) + `Noto Serif SC` (中文衬线)
+
+核心色彩：Emerald (翡翠绿) + Teal (青色) + Stone (暖石灰)
+
+#### Streamlit 设计系统（备用）
 
 **美学方向**：有机植物学 —— 温暖奶油底色、深森林绿、赤陶点缀、衬线标题。有生命力和自然感，非通用 Material Design。
 
@@ -356,14 +490,16 @@ NUTRITION_INFO = {
 
 | # | 交付物 | 位置 | 格式 |
 |---|---|---|---|
-| 1 | 完整源代码 | `src/` + `webapp/` | Python |
+| 1 | 完整源代码 | `src/` + `frontend/` + `api/` + `webapp/` | Python + TypeScript |
 | 2 | 训练后模型 | `models/fruit_cnn.pth` | PyTorch |
-| 3 | 项目规格说明 | `docs/SPEC.md` | Markdown |
-| 4 | 里程碑计划 | `docs/MILESTONES.md` | Markdown |
-| 5 | MVP 定义 | `docs/MVP.md` | Markdown |
-| 6 | 项目说明 | `README.md` | Markdown |
-| 7 | 项目报告 | `docs/report/学号_姓名_大作业报告.docx` | Word |
-| 8 | 答辩 PPT | `docs/presentation/学号_姓名_答辩PPT.pptx` | PowerPoint |
+| 3 | React SPA 前端 | `frontend/` | React + TypeScript |
+| 4 | FastAPI 推理后端 | `api/` | Python |
+| 5 | 项目规格说明 | `docs/SPEC.md` | Markdown |
+| 6 | 里程碑计划 | `docs/MILESTONES.md` | Markdown |
+| 7 | MVP 定义 | `docs/MVP.md` | Markdown |
+| 8 | 项目说明 | `README.md` | Markdown |
+| 9 | 项目报告 | `docs/report/学号_姓名_大作业报告.docx` | Word |
+| 10 | 答辩 PPT | `docs/presentation/学号_姓名_答辩PPT.pptx` | PowerPoint |
 
 ## 11. 参考资源
 
@@ -678,3 +814,5 @@ set_seed(config.random_seed)         # 训练前调用
 - 优先使用 CUDA GPU（若可用）
 - 推理（Web 应用）固定使用 CPU（`webapp/utils.py` 已硬编码 `torch.device("cpu")`）
 - 训练时 `Config.device` 自动检测，`train.py` 据此将模型和数据移至正确设备
+
+

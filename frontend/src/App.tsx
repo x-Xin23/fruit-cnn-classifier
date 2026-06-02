@@ -1,68 +1,142 @@
-import { AnimatePresence, motion } from 'framer-motion'
-import { HeroSection } from './components/HeroSection'
-import { UploadZone } from './components/UploadZone'
-import { LoadingState } from './components/LoadingState'
-import { ResultCard } from './components/ResultCard'
-import { FruitGallery } from './components/FruitGallery'
-import { usePrediction } from './hooks/usePrediction'
+import { useState } from 'react';
+import HeroUpload from './components/HeroUpload';
+import LoadingPremium from './components/LoadingPremium';
+import FruitResult from './components/FruitResult';
+import SupportedFruitsModal from './components/SupportedFruitsModal';
+import { FruitInfo } from './types';
+import { Info } from 'lucide-react';
 
-function App() {
-  const { state, result, error, runPrediction, reset } = usePrediction()
+type AppState = 'IDLE' | 'LOADING' | 'RESULT';
+
+export default function App() {
+  const [appState, setAppState] = useState<AppState>('IDLE');
+  const [fruitInfo, setFruitInfo] = useState<FruitInfo | null>(null);
+  const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  const resizeImage = (base64Str: string, maxWidth: number, maxHeight: number): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = base64Str;
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        if (width > maxWidth || height > maxHeight) {
+          const ratio = Math.min(maxWidth / width, maxHeight / height);
+          width = width * ratio;
+          height = height * ratio;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return resolve(base64Str);
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 0.8));
+      };
+      img.onerror = error => reject(error);
+    });
+  };
+
+  const handleImageSelect = async (file: File) => {
+    setAppState('LOADING');
+    setErrorMsg(null);
+    try {
+      const rawBase64 = await fileToBase64(file);
+      // Generate a responsive optimized version for API upload to save bandwidth
+      const optimizedBase64 = await resizeImage(rawBase64, 800, 800);
+      setCurrentImageUrl(rawBase64); // show original high res locally
+      
+      const base64Data = optimizedBase64.split(',')[1];
+      // Always treat as jpeg since we forced it in canvas
+      const mimeType = 'image/jpeg';
+
+      const response = await fetch('/api/identify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageParams: {
+            inlineData: {
+              data: base64Data,
+              mimeType: mimeType
+            }
+          }
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || '未能解析该水果。');
+      }
+
+      setFruitInfo(data as FruitInfo);
+      setAppState('RESULT');
+
+    } catch (err: any) {
+      console.error(err);
+      setErrorMsg(err.message || '分析过程中发生错误，请稍后重试。');
+      setAppState('IDLE');
+    }
+  };
+
+  const handleReset = () => {
+    setAppState('IDLE');
+    setFruitInfo(null);
+    setCurrentImageUrl(null);
+    setErrorMsg(null);
+  };
 
   return (
-    <div className="min-h-screen bg-oat">
-      <div className="max-w-2xl mx-auto">
-        <AnimatePresence mode="wait">
-          {state === 'idle' && (
-            <motion.div key="idle" exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
-              <HeroSection />
-              <UploadZone onUpload={runPrediction} />
-              <FruitGallery />
-            </motion.div>
-          )}
+    <div className="min-h-screen font-sans bg-[var(--color-canvas)] text-[var(--color-ink)]">
+      <header className="w-full py-6 px-6 md:px-12 flex items-center justify-between border-b border-stone-200 bg-white/80 backdrop-blur-md sticky top-0 z-50">
+        <div 
+          className="font-serif text-2xl font-bold tracking-wide text-stone-800 cursor-pointer flex items-baseline gap-2"
+          onClick={handleReset}
+        >
+          <span>Fructus.</span>
+          <span className="font-sans text-sm tracking-normal text-emerald-700 font-medium hidden sm:inline-block">鲜果志</span>
+        </div>
+        <div className="flex flex-col items-center gap-1 relative">
+          <div className="text-[10px] md:text-xs font-bold tracking-widest uppercase text-stone-400 hidden sm:block pb-1">
+            营养提取与识别分析
+          </div>
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-1.5 group p-1.5 px-2 rounded-full hover:bg-stone-50 transition-colors"
+            title="查看支持类型"
+          >
+            <span className="text-[10px] font-bold tracking-widest text-stone-400 group-hover:text-emerald-700 transition-colors hidden md:block">支持类型</span>
+            <Info className="w-4 h-4 text-stone-400 group-hover:text-emerald-700 transition-colors" />
+          </button>
+        </div>
+      </header>
 
-          {state === 'loading' && (
-            <motion.div key="loading" exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
-              <LoadingState />
-            </motion.div>
-          )}
+      <main className="w-full flex-grow flex flex-col items-center py-6 md:py-8 px-4 md:px-8">
+        {errorMsg && (
+          <div className="bg-red-50 text-red-800 px-6 py-4 border border-red-100 text-sm tracking-wide mb-8">
+            {errorMsg}
+          </div>
+        )}
 
-          {state === 'result' && result && (
-            <motion.div key="result" exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
-              <ResultCard result={result} onReset={reset} />
-            </motion.div>
-          )}
-
-          {state === 'error' && (
-            <motion.div
-              key="error"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex flex-col items-center justify-center py-20 px-4 text-center"
-            >
-              <div className="text-6xl mb-4">😅</div>
-              <p className="text-xl font-700 text-brown mb-2">哎呀，出了点小状况</p>
-              <p className="text-brown-pale font-600 mb-6">{error}</p>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={reset}
-                className="px-8 py-3 rounded-full bg-forest text-white font-700 hover:bg-forest-light transition-colors"
-              >
-                再试一次
-              </motion.button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <footer className="text-center py-8 text-brown-pale text-xs font-600">
-          <p>《人工智能基础》期末大作业 · 水果识别与营养信息展示系统</p>
-          <p className="mt-1">4 层 CNN · Fruits 360 · 15 种水果</p>
-        </footer>
-      </div>
+        {appState === 'IDLE' && <HeroUpload onImageSelect={handleImageSelect} />}
+        {appState === 'LOADING' && <LoadingPremium />}
+        {appState === 'RESULT' && fruitInfo && currentImageUrl && (
+          <FruitResult info={fruitInfo} imageUrl={currentImageUrl} onReset={handleReset} />
+        )}
+      </main>
+      
+      <SupportedFruitsModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
-  )
+  );
 }
-
-export default App

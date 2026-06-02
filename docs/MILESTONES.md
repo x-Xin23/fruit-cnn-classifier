@@ -118,11 +118,32 @@ python -c "from data.fruit_dataset import FruitDataset; \
 
 ## M4: Web 应用开发 ✅
 
-> **状态**: ✅ 已完成 (2026-06-01)。Web 前端 + 模型全部就绪，可直接运行推理。
+> **状态**: ✅ 已完成 (2026-06-01)。React SPA 前端 + FastAPI 后端 + Streamlit 备用前端全部就绪。
 
-**目标**: 开发完整的 Streamlit Web 应用，实现图片上传 → 预测 → 营养展示。前端采用绿色水果主题设计系统，GSAP 动画增强交互体验，满足 WCAG AA 无障碍标准。
+**目标**: 开发完整的 Web 应用，实现图片上传 → 预测 → 营养展示。提供两套前端实现：React SPA (Fructus 鲜果志，Innocent Drinks 风格) 和 Streamlit (有机植物学风格)。
 
 ### 文件结构
+
+#### React SPA 前端 (Fructus 鲜果志)
+
+```
+frontend/
+├── src/
+│   ├── App.tsx               # 主入口，状态管理
+│   ├── main.tsx              # React 渲染入口
+│   ├── types.ts              # TypeScript 类型定义
+│   ├── index.css             # 全局样式（Tailwind + Google Fonts）
+│   └── components/
+│       ├── HeroUpload.tsx    # 上传组件（点击 + 拖拽）
+│       ├── LoadingPremium.tsx# 加载动画（渐变光柱）
+│       ├── FruitResult.tsx   # 营养结果面板
+│       └── SupportedFruitsModal.tsx # 水果目录弹窗
+├── server.ts                 # Express 后端（桥接前端与 FastAPI）
+├── vite.config.ts
+└── package.json
+```
+
+#### Streamlit 备用前端
 
 ```
 webapp/
@@ -143,6 +164,18 @@ webapp/
 
 ### 技术增强（超出原始 SPEC）
 
+#### React SPA 增强
+
+| 增强项 | 技术 | 说明 |
+|---|---|---|
+| Innocent Drinks 风格 | Playfair Display + Inter + Tailwind CSS v4 | 高级生活方式美学，衬线标题 + 无衬线正文，精致留白 |
+| Framer Motion 动画 | `motion/react` | 弹性入场、渐变光柱加载、hover 微交互 |
+| 拖拽上传 | HTML5 Drag & Drop API | 支持点击和拖拽两种上传方式 |
+| Express 桥接层 | Express.js + tsx | 前端与 FastAPI 推理服务的中间层 |
+| FastAPI 独立后端 | FastAPI + Uvicorn | 独立的推理 API 服务，可被多前端复用 |
+
+#### Streamlit 增强
+
 | 增强项 | 技术 | 说明 |
 |---|---|---|
 | GSAP 全家桶 | `gsap.registerPlugin(ScrollTrigger, ScrollToPlugin)` + `gsap.matchMedia()` | ScrollTrigger 滚动驱动、Timeline 编排、视差 scrub、`autoAlpha`、`back.out`/`expo.out` 缓动 |
@@ -155,6 +188,22 @@ webapp/
 | 降级策略 | CSS keyframes fallback + `gsap.matchMedia()` | GSAP 不可用时 CSS 动画自动接管；`prefers-reduced-motion` 双重覆盖 |
 
 ### 任务清单
+
+#### React SPA 前端
+
+- [x] 集成 `fruit-recognition-prompt` 前端源码到 `frontend/`
+- [x] 实现 `frontend/server.ts`（Express 后端，桥接 FastAPI 推理服务）
+- [x] 实现 `frontend/src/App.tsx`（状态管理：IDLE → LOADING → RESULT）
+- [x] 实现 `frontend/src/components/HeroUpload.tsx`（点击 + 拖拽上传，Framer Motion 动画）
+- [x] 实现 `frontend/src/components/LoadingPremium.tsx`（渐变光柱 + 文字脉动加载动画）
+- [x] 实现 `frontend/src/components/FruitResult.tsx`（营养成分评估 + 核心功效 + 冷知识）
+- [x] 实现 `frontend/src/components/SupportedFruitsModal.tsx`（可解析果物目录弹窗）
+- [x] 实现 `frontend/src/types.ts`（FruitInfo 类型定义）
+- [x] 实现 `frontend/src/index.css`（Tailwind + Google Fonts + CSS 变量）
+- [x] 配置 `frontend/vite.config.ts`（proxy → Express 后端）
+- [x] 配置 `frontend/package.json`（React + Tailwind + Motion + Express 依赖）
+
+#### Streamlit 备用前端
 
 - [x] 实现 `webapp/requirements.txt`（精简依赖）
 - [x] 实现 `webapp/assets/theme.py`（设计 token + CSS 注入）
@@ -184,14 +233,36 @@ webapp/
 
 ### 交付物
 
-1. 可运行的 Streamlit Web 应用（含 GSAP 动画）
-2. 完整的推理流程（上传 → 预测 → 营养展示）
-3. 错误处理和加载状态
-4. 绿色水果主题设计系统
-5. WCAG AA 无障碍支持
-6. CSS + GSAP 双重动画降级保障
+1. 可运行的 React SPA 前端（Fructus 鲜果志，Innocent Drinks 风格）
+2. FastAPI 独立推理后端
+3. Express 桥接后端
+4. 可运行的 Streamlit 备用前端（含 GSAP 动画）
+5. 完整的推理流程（上传 → 预测 → 营养展示）
+6. 错误处理和加载状态
+7. 两套设计系统（Innocent Drinks + 有机植物学）
+8. WCAG AA 无障碍支持（Streamlit 版本）
+9. CSS + GSAP 双重动画降级保障（Streamlit 版本）
 
 ### 验证方式
+
+#### React SPA 验证
+
+```bash
+# 终端 1：启动 FastAPI 推理后端
+cd api && uvicorn main:app --reload --port 8000
+
+# 终端 2：启动 Express + Vite 前端
+cd frontend && npm run dev
+# 浏览器打开 http://localhost:3000
+# 1. 查看 Hero 标题 + 上传区 Framer Motion 入场动画
+# 2. 点击或拖拽上传水果图片
+# 3. 查看加载动画（渐变光柱 + 文字脉动）
+# 4. 查看识别结果：水果名称 + 营养成分面板 + 核心功效 + 冷知识
+# 5. 点击"重新解析"返回上传页
+# 6. 点击右上角 [?] 查看支持的水果目录弹窗
+```
+
+#### Streamlit 验证（备用）
 
 ```bash
 cd webapp

@@ -1,83 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Serif+SC:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
 
 @theme {
-  --color-oat: #F5F0E8;
-  --color-oat-light: #FAF7F2;
-  --color-oat-dark: #E8E0D0;
-  --color-forest: #2E7D32;
-  --color-forest-light: #4CAF50;
-  --color-forest-pale: #81C784;
-  --color-strawberry: #E53935;
-  --color-mango: #FFB300;
-  --color-blueberry: #7E57C2;
-  --color-brown: #3E2723;
-  --color-brown-light: #6D4C41;
-  --color-brown-pale: #A1887F;
-  --font-nunito: 'Nunito', system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", "Noto Serif SC", ui-serif, Georgia, serif;
+  --color-canvas: #fcfbf9;
+  --color-ink: #1c1917;
+  --color-surface: #ffffff;
+  --color-border: #f5f5f4;
 }
 
 body {
-  margin: 0;
-  font-family: var(--font-nunito);
-  background-color: var(--color-oat);
-  color: var(--color-brown);
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-#root {
-  min-height: 100svh;
-}
-
-/* Bouncy jelly animation keyframes */
-@keyframes jelly {
-  0%, 100% { transform: scale(1); }
-  25% { transform: scale(1.05, 0.95); }
-  50% { transform: scale(0.95, 1.05); }
-  75% { transform: scale(1.03, 0.97); }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
-}
-
-@keyframes wiggle {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-3deg); }
-  75% { transform: rotate(3deg); }
-}
-
-.animate-jelly {
-  animation: jelly 0.6s ease-in-out;
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-.animate-wiggle {
-  animation: wiggle 0.5s ease-in-out;
-}
-
-/* Handwritten-style sticky note */
-.sticky-note {
-  background: #FFF9C4;
-  box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
-  transform: rotate(-1deg);
-}
-
-/* Juice bar gradient */
-.juice-bar-green {
-  background: linear-gradient(90deg, #81C784, #2E7D32);
-}
-.juice-bar-yellow {
-  background: linear-gradient(90deg, #FFF176, #FFB300);
-}
-.juice-bar-red {
-  background: linear-gradient(90deg, #EF9A9A, #E53935);
-}
-.juice-bar-purple {
-  background: linear-gradient(90deg, #B39DDB, #7E57C2);
 }
