@@ -7,7 +7,7 @@
 | M1 | 环境搭建与数据准备 | 1-2 天 | 项目骨架、数据集就绪 | ✅ 已完成 |
 | M2 | 模型开发与训练 | 2-3 天 | CNN 模型训练完成 | ✅ 已完成 |
 | M3 | 模型评估与可视化 | 1-2 天 | 评估报告、可视化图表 | ✅ 已完成 |
-| M4 | Web 应用开发 | 2-3 天 | 可交互 Streamlit 应用 | ✅ 已完成 |
+| M4 | Web 应用开发 | 2-3 天 | React SPA + MiMo API 识别 | ✅ 已完成 |
 | M5 | 集成测试与文档 | 2-3 天 | 完整交付物 | 🟡 进行中 |
 
 **总计预估**: 8-13 天
@@ -118,13 +118,20 @@ python -c "from data.fruit_dataset import FruitDataset; \
 
 ## M4: Web 应用开发 ✅
 
-> **状态**: ✅ 已完成 (2026-06-01)。React SPA 前端 + FastAPI 后端 + Streamlit 备用前端全部就绪。
+> **状态**: ✅ 已完成 (2026-06-02)。React SPA 前端 + MiMo-v2.5 API 识别，部署在 Netlify。
 
-**目标**: 开发完整的 Web 应用，实现图片上传 → 预测 → 营养展示。提供两套前端实现：React SPA (Fructus 鲜果志，Innocent Drinks 风格) 和 Streamlit (有机植物学风格)。
+**目标**: 开发完整的 Web 应用，实现图片上传 → AI 识别 → 营养展示。
+
+### 架构说明
+
+项目经历了两次架构迭代：
+
+1. **初版 (v1)**: PyTorch CNN 模型 + FastAPI 后端 + Streamlit 备用前端
+2. **当前版 (v2)**: MiMo-v2.5 多模态大模型 API + Netlify Functions + React SPA
+
+v2 架构去掉了自训练的 CNN 模型和 FastAPI 后端，改用小米 MiMo-v2.5 的图像理解 API，部署更简单（仅需 Netlify），识别能力更强（支持任意水果图片，不限于训练集的 15 类）。
 
 ### 文件结构
-
-#### React SPA 前端 (Fructus 鲜果志)
 
 ```
 frontend/
@@ -138,61 +145,31 @@ frontend/
 │       ├── LoadingPremium.tsx# 加载动画（渐变光柱）
 │       ├── FruitResult.tsx   # 营养结果面板
 │       └── SupportedFruitsModal.tsx # 水果目录弹窗
-├── server.ts                 # Express 后端（桥接前端与 FastAPI）
+├── netlify/
+│   └── functions/
+│       └── identify.mts      # Netlify Function（调用 MiMo-v2.5 API）
+├── server.ts                 # Express 后端（本地开发备用）
+├── netlify.toml              # Netlify 部署配置
 ├── vite.config.ts
 └── package.json
 ```
 
-#### Streamlit 备用前端
-
-```
-webapp/
-├── app.py                    # 主入口（页面配置、session state、流程编排）
-├── utils.py                  # 模型缓存加载、图像预处理、推理、营养数据
-├── assets/
-│   ├── style.css             # 自定义 CSS（@import 字体、水果卡片网格、装饰元素、will-change）
-│   ├── theme.py              # 设计 token（颜色、字体、间距）+ CSS 注入函数
-│   └── animations.js         # GSAP 动画引擎（master Timeline + ScrollTrigger + 视差 + 微交互）
-├── components/
-│   ├── __init__.py           # 组件导出
-│   ├── upload.py             # 图片上传 + 验证 + 预览
-│   ├── result.py             # 识别结果卡片 + 置信度进度条
-│   ├── nutrition.py          # 营养价值卡片网格 + 功效列表
-│   └── fruit_gallery.py      # 15 种水果展示网格（ScrollTrigger.batch() 交错入场）
-└── requirements.txt          # Web 精简依赖
-```
-
 ### 技术增强（超出原始 SPEC）
-
-#### React SPA 增强
 
 | 增强项 | 技术 | 说明 |
 |---|---|---|
 | Innocent Drinks 风格 | Playfair Display + Inter + Tailwind CSS v4 | 高级生活方式美学，衬线标题 + 无衬线正文，精致留白 |
 | Framer Motion 动画 | `motion/react` | 弹性入场、渐变光柱加载、hover 微交互 |
 | 拖拽上传 | HTML5 Drag & Drop API | 支持点击和拖拽两种上传方式 |
-| Express 桥接层 | Express.js + tsx | 前端与 FastAPI 推理服务的中间层 |
-| FastAPI 独立后端 | FastAPI + Uvicorn | 独立的推理 API 服务，可被多前端复用 |
-
-#### Streamlit 增强
-
-| 增强项 | 技术 | 说明 |
-|---|---|---|
-| GSAP 全家桶 | `gsap.registerPlugin(ScrollTrigger, ScrollToPlugin)` + `gsap.matchMedia()` | ScrollTrigger 滚动驱动、Timeline 编排、视差 scrub、`autoAlpha`、`back.out`/`expo.out` 缓动 |
-| 水果展示区 | CSS Grid 5 列 + `ScrollTrigger.batch()` | 15 种水果卡片从中心扩散交错入场，GSAP hover 微交互 |
-| Master Timeline | 单一 Timeline 编排 Hero 入场序列 | 容器→标题(expo.out)→副标题→标签带(back.out 弹性)→上传区 |
-| 视差效果 | Hero 装饰圆 `ScrollTrigger scrub: 1.5` | 三个装饰圆随滚动反向移动，营造深度感 |
-| 设计系统 | CSS 变量 + 有机植物学美学 | 暖奶油底色 + 深森林绿 + 赞陶点缀，14 个设计 token，Google Fonts (Playfair Display + DM Sans) |
-| 性能优化 | `will-change: transform` + stagger `from: "center"` | 动画元素 GPU 提升，从中心扩散的 stagger 更有视觉张力 |
-| 无障碍 | ARIA + `gsap.matchMedia()` + 键盘导航 | WCAG AAA 合规（对比度 10.5:1+），屏幕阅读器完整支持 |
-| 降级策略 | CSS keyframes fallback + `gsap.matchMedia()` | GSAP 不可用时 CSS 动画自动接管；`prefers-reduced-motion` 双重覆盖 |
+| AI 视觉识别 | MiMo-v2.5 多模态大模型 | 替代自训练 CNN，支持任意水果图片识别 |
+| Serverless 后端 | Netlify Functions | 无需管理服务器，自动扩缩容 |
+| 全栈部署 | Netlify | 前端 + 后端统一平台，无需 Hugging Face Spaces |
 
 ### 任务清单
 
 #### React SPA 前端
 
 - [x] 集成 `fruit-recognition-prompt` 前端源码到 `frontend/`
-- [x] 实现 `frontend/server.ts`（Express 后端，桥接 FastAPI 推理服务）
 - [x] 实现 `frontend/src/App.tsx`（状态管理：IDLE → LOADING → RESULT）
 - [x] 实现 `frontend/src/components/HeroUpload.tsx`（点击 + 拖拽上传，Framer Motion 动画）
 - [x] 实现 `frontend/src/components/LoadingPremium.tsx`（渐变光柱 + 文字脉动加载动画）
@@ -200,81 +177,53 @@ webapp/
 - [x] 实现 `frontend/src/components/SupportedFruitsModal.tsx`（可解析果物目录弹窗）
 - [x] 实现 `frontend/src/types.ts`（FruitInfo 类型定义）
 - [x] 实现 `frontend/src/index.css`（Tailwind + Google Fonts + CSS 变量）
-- [x] 配置 `frontend/vite.config.ts`（proxy → Express 后端）
-- [x] 配置 `frontend/package.json`（React + Tailwind + Motion + Express 依赖）
+- [x] 配置 `frontend/vite.config.ts`
+- [x] 配置 `frontend/package.json`（React + Tailwind + Motion 依赖）
 
-#### Streamlit 备用前端
+#### MiMo API 集成
 
-- [x] 实现 `webapp/requirements.txt`（精简依赖）
-- [x] 实现 `webapp/assets/theme.py`（设计 token + CSS 注入）
-- [x] 实现 `webapp/assets/style.css`（完整绿色主题、响应式、无障碍、CSS 动画 fallback）
-- [x] 实现 `webapp/utils.py`：
-  - 15 种水果营养数据字典
-  - `@st.cache_resource` 模型加载
-  - 图像预处理函数（128×128、ImageNet 归一化）
-  - 预测函数封装（返回名称、置信度、概率分布）
-- [x] 实现 `webapp/components/__init__.py`
-- [x] 实现 `webapp/components/upload.py`（上传、验证、base64 预览）
-- [x] 实现 `webapp/components/result.py`（结果卡片、置信度进度条、Top-3 概率）
-- [x] 实现 `webapp/components/nutrition.py`（营养卡片网格、功效列表、描述）
-- [x] 实现 `webapp/assets/animations.js`（GSAP 动画引擎、MutationObserver）
-- [x] 实现 `webapp/app.py`：
-  - `st.set_page_config` 页面配置
-  - Session state 管理（图片、预测结果、错误状态）
-  - Hero 标题 + 副标题
-  - 图片上传区域
-  - "识别水果" 按钮 + Spinner 加载状态
-  - 识别结果展示（名称 + 置信度动画）
-  - 营养价值展示（卡片 + 功效 + 描述）
-  - 重新上传按钮（状态重置）
-  - 错误提示（文件格式、文件大小、模型缺失）
-  - GSAP 动画引擎 iframe（加载 CDN + animations.js）
-- [ ] 端到端测试：模型已就绪，可执行
+- [x] 实现 `frontend/netlify/functions/identify.mts`（Netlify Function，调用 MiMo-v2.5 API）
+- [x] 配置 `frontend/netlify.toml`（API 路由重定向 + SPA fallback）
+- [x] 更新 `frontend/.env.example`（MIMO_API_KEY 环境变量）
+- [x] 添加 `frontend/package.json` 的 `dev:netlify` 脚本
+
+#### CNN 模型训练（v1 架构，已完成）
+
+- [x] 数据准备、模型训练、评估可视化（详见 M1-M3）
+- [x] 以上代码保留在 `src/` 目录作为参考
 
 ### 交付物
 
 1. 可运行的 React SPA 前端（Fructus 鲜果志，Innocent Drinks 风格）
-2. FastAPI 独立推理后端
-3. Express 桥接后端
-4. 可运行的 Streamlit 备用前端（含 GSAP 动画）
-5. 完整的推理流程（上传 → 预测 → 营养展示）
-6. 错误处理和加载状态
-7. 两套设计系统（Innocent Drinks + 有机植物学）
-8. WCAG AA 无障碍支持（Streamlit 版本）
-9. CSS + GSAP 双重动画降级保障（Streamlit 版本）
+2. Netlify Function 后端（调用 MiMo-v2.5 API）
+3. 完整的推理流程（上传 → AI 识别 → 营养展示）
+4. 错误处理和加载状态
+5. Netlify 全栈部署配置
 
 ### 验证方式
 
-#### React SPA 验证
+#### 本地开发验证
 
 ```bash
-# 终端 1：启动 FastAPI 推理后端
-cd api && uvicorn main:app --reload --port 8000
+cd frontend
 
-# 终端 2：启动 Express + Vite 前端
-cd frontend && npm run dev
-# 浏览器打开 http://localhost:3000
-# 1. 查看 Hero 标题 + 上传区 Framer Motion 入场动画
-# 2. 点击或拖拽上传水果图片
-# 3. 查看加载动画（渐变光柱 + 文字脉动）
-# 4. 查看识别结果：水果名称 + 营养成分面板 + 核心功效 + 冷知识
-# 5. 点击"重新解析"返回上传页
-# 6. 点击右上角 [?] 查看支持的水果目录弹窗
+# 方式一：使用 Netlify Dev（推荐）
+npm run dev:netlify
+# 浏览器打开 http://localhost:8888
+
+# 方式二：仅前端
+npm run dev:frontend
+# 浏览器打开 http://localhost:5173
 ```
 
-#### Streamlit 验证（备用）
+#### 验证步骤
 
-```bash
-cd webapp
-streamlit run app.py
-# 浏览器打开 http://localhost:8501
-# 1. 查看 Hero 标题入场动画（GSAP fade-in）
-# 2. 上传水果图片 → 查看预览
-# 3. 点击"识别水果" → 查看结果卡片揭示动画 + 置信度条填充 + 营养卡片交错入场
-# 4. 上传非图片文件（.txt）→ 查看错误提示
-# 5. 系统开启"减少动画"→ 动画即时完成
-# 6. Tab 键导航验证键盘可达性
-```
+1. 查看 Hero 标题 + 上传区 Framer Motion 入场动画
+2. 点击或拖拽上传水果图片
+3. 查看加载动画（渐变光柱 + 文字脉动）
+4. 查看识别结果：水果名称 + 营养成分面板 + 核心功效 + 冷知识
+5. 点击"重新解析"返回上传页
+6. 点击右上角 [?] 查看支持的水果目录弹窗
 
 ---
 

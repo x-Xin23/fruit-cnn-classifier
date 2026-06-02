@@ -20,18 +20,18 @@
 
 | 层 | 技术选型 | 版本要求 |
 |---|---|---|
-| 语言 | Python | >= 3.10 |
-| 深度学习框架 | PyTorch + torchvision | >= 2.0 |
-| 包管理 | uv | — |
+| 语言 | Python (模型训练) / TypeScript (前端) | Python >= 3.10 / Node.js >= 18 |
+| 深度学习框架 | PyTorch + torchvision (模型训练) | >= 2.0 |
+| AI 推理 | 小米 MiMo-v2.5 多模态大模型 API | — |
+| 包管理 | uv (Python) / npm (Node.js) | — |
 | SPA 前端 | React + TypeScript + Tailwind CSS v4 | Node.js >= 18 |
-| SPA 后端 | Express.js + tsx | — |
-| 推理 API | FastAPI + Uvicorn | — |
+| Serverless 后端 | Netlify Functions | — |
 | 前端动画 | Motion (Framer Motion) | >= 12 |
 | 前端图标 | Lucide React | — |
-| 备用 Web 框架 | Streamlit | >= 1.28 |
 | 数据处理 | NumPy, Pandas, Pillow | — |
 | 评估指标 | scikit-learn | >= 1.3 |
 | 可视化 | matplotlib, seaborn | — |
+| 部署平台 | Netlify | — |
 | 版本控制 | Git | — |
 
 ## 4. 功能需求 (Functional Requirements)
@@ -56,22 +56,22 @@
 
 ### Web 应用
 - **FR-13**: 图片上传组件（支持 JPG/PNG 格式）
-- **FR-14**: "识别水果"按钮触发模型推理
+- **FR-14**: "识别水果"按钮触发 AI 识别
 - **FR-15**: 展示预测结果：水果名称（中文 + 英文）、置信度
 - **FR-16**: 展示营养价值信息：热量、维生素 C、膳食纤维、主要功效、食用建议
 - **FR-17**: 非法文件上传的错误处理与提示
-- **FR-18**: 模型使用 `@st.cache_resource` 缓存加载，避免重复加载
+- **FR-18**: 通过 MiMo-v2.5 API 进行水果图像识别
 
 ## 5. 非功能性需求 (Non-Functional Requirements)
 
 | 编号 | 要求 | 指标 |
 |---|---|---|
 | **NFR-01** | CPU 上可完成训练 | 50 epoch ≤ 3 小时（数据量 79,500 张，实际早停可能提前终止） |
-| **NFR-02** | Web 推理响应快 | 单张图片 ≤ 3 秒 |
-| **NFR-03** | 离线可用 | 无外部 API 依赖 |
-| **NFR-04** | 代码注释规范 | 所有公开函数含 docstring |
-| **NFR-05** | 代码与文档硬隔离 | `src/` 不含任何文档文件，`docs/` 不含任何代码 |
-| **NFR-06** | 可复现 | 固定随机种子，requirements.txt 锁定依赖 |
+| **NFR-02** | Web 推理响应快 | 单张图片 ≤ 5 秒（含 API 网络延迟） |
+| **NFR-03** | 代码注释规范 | 所有公开函数含 docstring |
+| **NFR-04** | 代码与文档硬隔离 | `src/` 不含任何文档文件，`docs/` 不含任何代码 |
+| **NFR-05** | 可复现 | 固定随机种子，requirements.txt 锁定依赖 |
+| **NFR-06** | 部署简单 | 仅需 Netlify 一个平台，设置环境变量即可部署 |
 
 ## 6. 模型规格
 
@@ -169,12 +169,7 @@ checkpoint = {
 
 ## 8. Web 应用规格
 
-本项目提供两套前端实现：
-
-1. **React SPA (Fructus 鲜果志)** — 主前端，位于 `frontend/`，采用 Innocent Drinks 风格设计
-2. **Streamlit Web 应用** — 备用前端，位于 `webapp/`，采用有机植物学风格设计
-
-两者共享同一个 FastAPI 推理后端（`api/`）和同一套 CNN 模型。
+本项目采用 React SPA 前端 + MiMo-v2.5 API 后端的架构，部署在 Netlify 平台。
 
 ### 8.1 React SPA 前端 (Fructus 鲜果志)
 
@@ -192,9 +187,13 @@ frontend/
 │       ├── LoadingPremium.tsx# 高级感过场加载动画（渐变光柱 + 文字脉动）
 │       ├── FruitResult.tsx   # 营养结果面板（营养成分评估 + 核心功效 + 冷知识）
 │       └── SupportedFruitsModal.tsx # 可解析果物目录弹窗
-├── server.ts                 # Express 后端（桥接前端与 FastAPI 推理服务）
-├── .env.example              # 环境变量配置示例
-├── vite.config.ts            # Vite 配置（proxy → Express）
+├── netlify/
+│   └── functions/
+│       └── identify.mts      # Netlify Function（调用 MiMo-v2.5 API 识别水果）
+├── server.ts                 # Express 后端（本地开发备用）
+├── .env.example              # 环境变量配置示例（MIMO_API_KEY）
+├── netlify.toml              # Netlify 部署配置（API 路由重定向 + SPA fallback）
+├── vite.config.ts            # Vite 配置
 ├── tsconfig.json             # TypeScript 配置
 ├── index.html                # HTML 入口
 └── package.json              # 依赖与脚本
@@ -214,36 +213,18 @@ frontend/
 #### 启动方式
 
 ```bash
-# 终端 1：启动 FastAPI 推理后端
-cd api && uvicorn main:app --reload --port 8000
+cd frontend
 
-# 终端 2：启动 Express + Vite 前端
-cd frontend && npm run dev
-# 浏览器打开 http://localhost:3000
+# 方式一：使用 Netlify Dev（推荐，自动代理 API 请求）
+npm run dev:netlify
+# 浏览器打开 http://localhost:8888
+
+# 方式二：仅启动前端（需配合部署后的 API）
+npm run dev:frontend
+# 浏览器打开 http://localhost:5173
 ```
 
-### 8.2 Streamlit Web 应用（备用）
-
-#### 文件结构
-
-```
-webapp/
-├── app.py                    # 主入口（页面配置、session state、流程编排）
-├── utils.py                  # 模型缓存加载、图像预处理、推理、营养数据
-├── assets/
-│   ├── style.css             # 自定义 CSS（@import 字体、水果卡片网格、装饰元素、will-change）
-│   ├── theme.py              # 设计 token（颜色、字体、间距）+ CSS 注入函数
-│   └── animations.js         # GSAP 动画引擎（master Timeline + ScrollTrigger + 视差 + 微交互）
-├── components/
-│   ├── __init__.py           # 组件导出
-│   ├── upload.py             # 图片上传 + 验证 + 预览
-│   ├── result.py             # 识别结果卡片 + 置信度进度条
-│   ├── nutrition.py          # 营养价值卡片网格 + 功效列表
-│   └── fruit_gallery.py      # 15 种水果展示网格（ScrollTrigger.batch() 交错入场）
-└── requirements.txt          # Web 精简依赖
-```
-
-### 页面布局
+### 8.2 页面布局
 
 #### React SPA 布局 (Fructus 鲜果志)
 
@@ -287,59 +268,18 @@ webapp/
 └──────────────────────────────────────────────┘
 ```
 
-#### Streamlit 布局（备用）
-
-```
-┌──────────────────────────────────────────┐
-│  🍎 水果识别与营养信息展示系统              │
-│  上传水果图片，即刻识别种类并查看营养价值    │
-│  [CNN 深度学习 · 15 种水果 · 99.9% 准确率] │
-├──────────────────────────────────────────┤
-│  支持识别的 15 种水果                      │
-│  ┌──┐ ┌──┐ ┌──┐ ┌──┐ ┌──┐              │
-│  │🍎│ │🍌│ │🍊│ │🍇│ │🍓│ ...          │
-│  └──┘ └──┘ └──┘ └──┘ └──┘              │
-├──────────────────────────────────────────┤
-│  [上传水果图片]  (拖拽或点击选择)           │
-│  [已上传图片预览]                          │
-│  [ 🔍 识别水果 ]  按钮                     │
-│  ─────── 识别结果 ───────                  │
-│  🍎 苹果 (Apple)                          │
-│  置信度: ████████████ 95.2%               │
-│  ─────── 营养价值 ───────                  │
-│  | 项目      | 含量            |          │
-│  | 热量      | 52 kcal/100g   |          │
-│  | 维生素C   | 4.6 mg/100g    |          │
-│  | 膳食纤维  | 2.4 g/100g     |          │
-│  | 主要功效  | 促进消化、降胆固醇 |        │
-│  [重新上传]                               │
-└──────────────────────────────────────────┘
-```
-
 ### 用户流程
 
 #### React SPA 流程
 
-1. 用户在浏览器打开 <http://localhost:3000>
+1. 用户在浏览器打开应用（本地 http://localhost:8888 或 Netlify 部署 URL）
 2. 页面加载：Hero 标题 + 上传区 Framer Motion 入场
 3. 用户点击或拖拽上传一张水果图片（JPG/PNG）
-4. 前端将图片 base64 发送至 Express 后端
-5. Express 后端转发至 FastAPI 推理服务（CNN 模型）
+4. 前端将图片 base64 发送至 `/api/identify`（Netlify Function）
+5. Netlify Function 调用 MiMo-v2.5 API 进行图像识别
 6. 系统展示加载动画（渐变光柱 + "正在解构果物标识..."）
 7. 系统展示识别结果：水果名称 + 营养成分评估面板 + 核心功效 + 冷知识
 8. 用户点击"重新解析"可上传新图片
-
-#### Streamlit 流程（备用）
-
-1. 用户在浏览器打开 <http://localhost:8501>
-2. 页面加载：Hero + 水果展示区 + 上传区 master Timeline 入场
-3. 用户浏览 15 种水果展示（ScrollTrigger 滚动触发交错入场）
-4. 用户上传一张水果图片（JPG/PNG）
-5. 用户点击"识别水果"按钮
-6. 系统调用 CNN 模型进行推理
-7. 系统展示预测结果（卡片→emoji 弹性→置信度条 Timeline）
-8. 系统展示该水果的营养价值信息
-9. 用户可上传新图片重复操作
 
 ### 交互状态
 
@@ -367,133 +307,55 @@ webapp/
 
 核心色彩：Emerald (翡翠绿) + Teal (青色) + Stone (暖石灰)
 
-#### Streamlit 设计系统（备用）
-
-**美学方向**：有机植物学 —— 温暖奶油底色、深森林绿、赤陶点缀、衬线标题。有生命力和自然感，非通用 Material Design。
-
-#### 色彩方案
-
-| Token | 色值 | 用途 |
-|---|---|---|
-| `--primary-dark` | `#1a3a2a` | 标题文字、深色强调 |
-| `--primary` | `#2d6a4f` | 主按钮、边框 |
-| `--primary-light` | `#52b788` | 悬停态、浅色强调 |
-| `--primary-lighter` | `#b7e4c7` | 上传区边框、轻装饰 |
-| `--accent` | `#e76f51` | 赤陶交互高亮 |
-| `--accent-light` | `#f4a261` | 琥珀 focus 轮廓 |
-| `--bg` | `#faf8f0` | 暖奶油页面背景 |
-| `--bg-alt` | `#f0ece2` | 深奶油辅助背景 |
-| `--card-bg` | `#FFFFFF` | 卡片背景 |
-| `--text` | `#1a1a1a` | 正文 |
-| `--text-secondary` | `#5a5a5a` | 次要文字 |
-| `--error` | `#c1292e` | 错误提示 |
-| `--success` | `#2d6a4f` | 成功勾选 |
-
-背景使用 CSS radial-gradient mesh（两层椭圆渐变）营造有机深度感。Google Fonts 通过 CSS `@import` 引入。
-
-#### 排版
-
-- 标题字体：`Playfair Display` / `Noto Serif SC`（Google Fonts，衬线，编辑感）
-- 正文字体：`DM Sans` / `Noto Sans SC`（Google Fonts，几何无衬线，现代）
-- Hero 标题：2.5rem / 700 weight / letter-spacing -0.5px
-- Hero 副标题：0.95rem / 400 weight
-- 正文：0.92rem / 400 weight / line-height 1.7
-
-#### Hero 区域
-
-全宽圆角容器，内部有三个径向渐变装饰圆（右上绿 + 左下琥珀 + 左中赤陶），渐变背景 + 1px 半透明边框。包含标题、副标题、标签带（准确率数据）。装饰圆通过 ScrollTrigger scrub 实现视差效果。
-
-#### 水果展示区
-
-CSS Grid 5 列布局，15 个水果卡片（emoji + 中文名 + 英文名）。GSAP `ScrollTrigger.batch()` 滚动触发交错入场（`from: "center"` 从中心扩散），hover 时 GSAP 驱动 scale + translateY 微交互。
-
-### 动画规格（GSAP 全家桶）
-
-**插件注册**：`gsap.registerPlugin(ScrollTrigger, ScrollToPlugin)`
-
-**架构**：`gsap.matchMedia()` 处理 `prefers-reduced-motion`。Master Timeline 编排页面加载入场序列。ScrollTrigger 滚动驱动水果卡片和内容区入场。MutationObserver 监听 Streamlit 重渲染后的新 DOM 节点。
-
-| 动画 | 触发时机 | 技术 | 时长 | 缓动 |
-|---|---|---|---|---|
-| Hero 容器 | 页面加载 | Master Timeline | 0.8s | `power3.out` |
-| Hero 标题 | 页面加载 | Master Timeline | 0.7s | `expo.out` |
-| Hero 副标题 | 页面加载 | Master Timeline | 0.5s | `power3.out` |
-| Hero 标签带 | 页面加载 | Master Timeline | 0.5s | `back.out(2)` |
-| Hero 装饰圆视差 | 滚动 | ScrollTrigger scrub: 1.5 | — | `none` |
-| 上传区入场 | 页面加载 | Master Timeline | 0.6s | `power2.out` |
-| 水果卡片入场 | 滚动 | `ScrollTrigger.batch()` stagger `from: "center"` | 0.5s | `back.out(1.4)` |
-| 水果卡片 hover | 用户 hover | GSAP `to(scale, y)` | 0.3s | `power2.out` |
-| 分隔线入场 | 滚动 | ScrollTrigger `from(autoAlpha, scaleX)` | 0.5s | `expo.out` |
-| 结果卡片揭示 | 预测完成 | Timeline: 卡片→emoji→名称→置信度条 | 0.7s/0.55s/0.4s/1.2s | `power3.out`/`back.out(2.5)`/`expo.out` |
-| 滚动至结果 | 预测完成 | GSAP `scrollTo` (Timeline callback) | 0.7s | `power2.inOut` |
-| 营养卡片入场 | 滚动 | ScrollTrigger `from` stagger `from: "center"` | 0.55s | `back.out(1.4)` |
-| 功效列表入场 | 滚动 | ScrollTrigger `from(autoAlpha, x)` stagger | 0.4s | `power2.out` |
-| 描述文本入场 | 滚动 | ScrollTrigger `from(autoAlpha, y)` | 0.5s | `power2.out` |
-
 ### 降级策略
 
 | 场景 | 降级行为 |
 |---|---|
-| GSAP CDN 不可达 | CSS `@keyframes` 动画自动接管 |
-| iframe 加载失败 | 纯 HTML + CSS 样式，功能完全可用 |
-| 用户开启 `prefers-reduced-motion` | `gsap.matchMedia()` + CSS `@media` 双重覆盖，所有动画时长为 0 |
-| 模型文件未训练 | 捕获 `FileNotFoundError`，展示友好错误提示 |
+| 用户开启 `prefers-reduced-motion` | Framer Motion 自动检测，动画时长为 0 |
+| MiMo API 不可用 | 展示友好错误提示，引导用户稍后重试 |
+| 网络连接失败 | 展示网络错误提示 |
 
 ### 无障碍
 
-- **颜色对比度**: 标题 `#1a3a2a` on `#faf8f0` = 10.5:1 / 正文 `#1a1a1a` on `#ffffff` = 17.4:1（WCAG AAA 合规）
-- **焦点可见**: `:focus-visible` 琥珀色 3px 轮廓
-- **屏幕阅读器**: `aria-label` 在上传区、进度条、结果卡片、水果卡片；`role="alert"` 在错误消息；`role="progressbar"` 在置信度条
-- **减少动画**: `gsap.matchMedia()` + `@media (prefers-reduced-motion: reduce)` 双重覆盖
+- **颜色对比度**: 标题和正文均符合 WCAG AA 标准
+- **焦点可见**: `:focus-visible` 轮廓
+- **屏幕阅读器**: `aria-label` 在上传区、进度条、结果卡片
+- **减少动画**: `prefers-reduced-motion` 媒体查询支持
 - **图片 alt**: 所有图片含描述性 `alt` 文本
 - **键盘导航**: 完整 Tab 序列支持
-- **性能**: `will-change: transform` 在动画元素上，GPU 提升
 
 ## 9. 营养数据规格
 
 ### 数据来源
 
-营养数据手工整理自公开营养数据库，以 Python 字典形式存储在 `src/utils/nutrition.py`。
+营养数据由 MiMo-v2.5 大模型根据识别结果动态生成。模型会基于水果种类提供以下信息：
 
-### 数据结构
-
-```python
-NUTRITION_INFO = {
-    "Apple": {
-        "name_zh": "苹果",
-        "calories_per_100g": "52 kcal",
-        "vitamin_c": "4.6 mg",
-        "fiber": "2.4 g",
-        "benefits": [
-            "促进消化，富含膳食纤维",
-            "降低胆固醇，保护心血管健康",
-            "增强免疫力"
-        ],
-        "description": "苹果富含膳食纤维和维生素C，常食有助于消化健康..."
-    },
-    # ... 其余 14 种水果
-}
-```
-
-### 覆盖字段
+### 返回字段
 
 | 字段 | 说明 |
 |---|---|
-| `name_zh` | 中文名称 |
-| `calories_per_100g` | 每 100g 热量 (kcal) |
+| `fruit_zh` | 中文名称 |
+| `fruit_en` | 英文名称 |
+| `emoji` | 对应水果的 emoji |
+| `calories` | 每 100g 热量 (kcal) |
 | `vitamin_c` | 维生素 C 含量 |
 | `fiber` | 膳食纤维含量 |
-| `benefits` | 主要健康功效列表 |
-| `description` | 综合营养描述 |
+| `benefits` | 主要健康功效列表（3 项） |
+| `description` | 综合营养描述（约 50 字） |
+| `trivia` | 有趣冷知识 |
+
+### 历史参考
+
+v1 架构中，营养数据以 Python 字典形式存储在 `src/utils/nutrition.py`，包含 15 种水果的静态营养信息。该文件仍保留在项目中作为参考。
 
 ## 10. 交付物清单
 
 | # | 交付物 | 位置 | 格式 |
 |---|---|---|---|
-| 1 | 完整源代码 | `src/` + `frontend/` + `api/` + `webapp/` | Python + TypeScript |
+| 1 | 完整源代码 | `src/` + `frontend/` | Python + TypeScript |
 | 2 | 训练后模型 | `models/fruit_cnn.pth` | PyTorch |
 | 3 | React SPA 前端 | `frontend/` | React + TypeScript |
-| 4 | FastAPI 推理后端 | `api/` | Python |
+| 4 | Netlify Function 后端 | `frontend/netlify/functions/` | TypeScript |
 | 5 | 项目规格说明 | `docs/SPEC.md` | Markdown |
 | 6 | 里程碑计划 | `docs/MILESTONES.md` | Markdown |
 | 7 | MVP 定义 | `docs/MVP.md` | Markdown |
@@ -503,12 +365,15 @@ NUTRITION_INFO = {
 
 ## 11. 参考资源
 
+- 小米 MiMo 开放平台: <https://platform.xiaomimimo.com>
 - Fruits 360 Dataset: <https://www.kaggle.com/datasets/moltean/fruits>
 - PyTorch 官方教程: <https://pytorch.org/tutorials/>
-- Streamlit 文档: <https://docs.streamlit.io/>
+- Netlify Functions 文档: <https://docs.netlify.com/functions/overview/>
 - 免费 GPU 平台: Google Colab, Kaggle Notebook, 飞桨 AI Studio
 
-## 12. 模块接口规格
+## 12. 模块接口规格（v1 架构参考）
+
+> **注意**: 以下接口规格适用于 v1 架构（PyTorch CNN 模型）。当前版本 (v2) 使用 MiMo-v2.5 API，不再依赖这些模块。这些代码保留在 `src/` 目录中作为参考。
 
 本节定义 `src/` 下每个后端模块的公开接口，作为实现的契约。
 
@@ -718,7 +583,7 @@ def main() -> None:
 
 以下描述从原始数据到 Web 推理的完整数据流。
 
-### 流程图
+### 训练阶段数据流（v1 架构，已完成）
 
 ```
 Kaggle 数据下载 (data/raw/fruits-360/)
@@ -754,9 +619,34 @@ train_loader (70%)   val_loader (10%)   test_loader (20%)
          │
          ▼
   docs/report/figures/  (报告用图表)
+```
+
+### Web 推理数据流（v2 架构，当前版本）
+
+```
+用户上传图片 (JPG/PNG)
          │
+         │  App.tsx: fileToBase64() + resizeImage()
          ▼
-  webapp/app.py: 加载 fruit_cnn.pth → 用户上传图片 → 推理 → 展示结果
+base64 图片数据
+         │
+         │  POST /api/identify
+         ▼
+Netlify Function (identify.mts)
+         │
+         │  调用 MiMo-v2.5 API
+         │  (base64 图片 + 系统提示词)
+         ▼
+MiMo-v2.5 API 返回 JSON
+         │
+         │  解析 + 格式转换
+         ▼
+FruitInfo 对象
+         │
+         │  返回给前端
+         ▼
+FruitResult 组件展示
+(水果名称 + 营养成分 + 功效 + 冷知识)
 ```
 
 ### 数据划分比例
@@ -780,7 +670,9 @@ Mango → Orange → Peach → Pear → Pineapple → Pomegranate → Strawberry
 
 此顺序与 `webapp/utils.py` 中的 `CLASS_NAMES` 完全对应，是实现时需确保的最高优先级约束。
 
-## 14. 配置管理
+## 14. 配置管理（v1 架构参考）
+
+> **注意**: 以下配置管理方式适用于 v1 架构（PyTorch CNN 模型训练）。当前版本 (v2) 的配置通过 Netlify 环境变量管理（`MIMO_API_KEY`）。
 
 ### 设计原则
 

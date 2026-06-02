@@ -13,9 +13,7 @@ export default defineConfig(() => {
       },
     },
     server: {
-      proxy: {
-        '/api': 'http://localhost:3000',
-      },
+      // 使用 `netlify dev` 启动本地开发，自动代理 /api/* 到 Netlify Functions
     },
   };
 });
