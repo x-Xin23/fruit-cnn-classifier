@@ -44,7 +44,7 @@ export default function HeroUpload({ onImageSelect }: HeroUploadProps) {
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="flex flex-col items-center mb-10 mt-12 md:mt-20"
+        className="flex flex-col items-center mb-10 mt-14 md:mt-20"
       >
         <h1 className="font-serif text-5xl md:text-7xl mb-6 text-center leading-tight text-transparent bg-clip-text bg-gradient-to-br from-emerald-900 via-teal-800 to-stone-800">
           探寻鲜果真味
@@ -58,7 +58,7 @@ export default function HeroUpload({ onImageSelect }: HeroUploadProps) {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1, delay: 0.2 }}
-        className={`w-full max-w-2xl aspect-[16/9] md:aspect-[21/9] rounded-[2rem] border-2 border-dashed cursor-pointer flex flex-col items-center justify-center p-8 transition-all duration-500 shadow-sm mt-10 md:mt-14 ${
+        className={`w-full max-w-2xl aspect-[16/9] md:aspect-[21/9] rounded-[2rem] border-2 border-dashed cursor-pointer flex flex-col items-center justify-center p-8 transition-all duration-500 shadow-sm mt-4 md:mt-8 ${
           isDragging 
             ? 'border-emerald-500 bg-emerald-50/50 scale-[1.02] shadow-emerald-100' 
             : 'border-stone-200 bg-white hover:border-emerald-300 hover:shadow-lg hover:shadow-stone-100'
