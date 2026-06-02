@@ -52,7 +52,7 @@ export default function FruitResult({ info, imageUrl, onReset }: FruitResultProp
 
         <div className="flex flex-col gap-8 items-center">
           {/* Image Section - Centered, smaller */}
-          <div className="w-full max-w-[260px] cursor-pointer">
+          <div className="w-full max-w-[340px] cursor-pointer">
             <div className="aspect-square w-full relative group flex items-center justify-center">
               <img
                 src={imageUrl}
