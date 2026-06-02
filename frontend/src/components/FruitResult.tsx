@@ -21,16 +21,14 @@ export default function FruitResult({ info, imageUrl, onReset }: FruitResultProp
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 pt-2 pb-24">
-      <div className="max-w-4xl mx-auto w-full">
-        <motion.button
-          onClick={onReset}
-          whileHover={{ x: -4 }}
-          className="flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-stone-400 mb-8 -mt-4 hover:text-emerald-700 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          重新解析
-        </motion.button>
-      </div>
+      <motion.button
+        onClick={onReset}
+        whileHover={{ x: -4 }}
+        className="flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-stone-400 mb-8 -mt-4 hover:text-emerald-700 transition-colors"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        重新解析
+      </motion.button>
 
       <motion.div
         initial={{ y: 20, opacity: 0 }}
