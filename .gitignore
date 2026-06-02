@@ -72,3 +72,6 @@ pdf*_output.txt
 
 # CUDA wheel (local only)
 torch_cuda.whl
+
+# Local Netlify folder
+.netlify

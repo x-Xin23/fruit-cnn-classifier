@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Sprout } from 'lucide-react';
+import { X, Sparkles, Github, ExternalLink } from 'lucide-react';
 
 interface SupportedFruitsModalProps {
   isOpen: boolean;
@@ -22,15 +22,16 @@ export default function SupportedFruitsModal({ isOpen, onClose }: SupportedFruit
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: 10, opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="bg-[var(--color-canvas)] w-full max-w-2xl rounded-[2rem] shadow-2xl border border-stone-200 overflow-hidden"
+            className="bg-[var(--color-canvas)] w-full max-w-lg rounded-[2rem] shadow-2xl border border-stone-200 overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Header */}
             <div className="flex items-center justify-between p-6 px-8 border-b border-stone-100 bg-white">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center">
-                  <Sprout className="w-5 h-5 text-emerald-600" />
+                  <Sparkles className="w-5 h-5 text-emerald-600" />
                 </div>
-                <h2 className="font-serif text-2xl font-semibold text-stone-800">可解析果物目录</h2>
+                <h2 className="font-serif text-2xl font-semibold text-stone-800">Fructus. 鲜果志</h2>
               </div>
               <button
                 onClick={onClose}
@@ -40,41 +41,66 @@ export default function SupportedFruitsModal({ isOpen, onClose }: SupportedFruit
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
+
+            {/* Content */}
             <div className="p-8 max-h-[65vh] overflow-y-auto">
-              <p className="text-base text-stone-500 leading-relaxed mb-8">
-                本系统基于 4 层 CNN 模型（Fruits 360 数据集，测试准确率 99.90%），支持识别以下 15 种常见水果：
+              <p className="text-stone-600 leading-relaxed mb-6">
+                一款基于 AI 视觉理解的水果识别应用。上传水果照片，即可获得水果种类识别及详细营养信息。
               </p>
-              
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-6 gap-x-8">
-                {[
-                  { name: '苹果', en: 'Apple' },
-                  { name: '香蕉', en: 'Banana' },
-                  { name: '蓝莓', en: 'Blueberry' },
-                  { name: '樱桃', en: 'Cherry' },
-                  { name: '葡萄', en: 'Grape' },
-                  { name: '猕猴桃', en: 'Kiwi' },
-                  { name: '柠檬', en: 'Lemon' },
-                  { name: '芒果', en: 'Mango' },
-                  { name: '橙子', en: 'Orange' },
-                  { name: '桃子', en: 'Peach' },
-                  { name: '梨', en: 'Pear' },
-                  { name: '菠萝', en: 'Pineapple' },
-                  { name: '石榴', en: 'Pomegranate' },
-                  { name: '草莓', en: 'Strawberry' },
-                  { name: '西瓜', en: 'Watermelon' }
-                ].map((fruit, idx) => (
-                  <div key={idx} className="border-b border-stone-100 pb-3 group">
-                    <div className="text-sm font-bold text-stone-700 group-hover:text-emerald-700 transition-colors">{fruit.name}</div>
-                    <div className="text-xs font-serif italic text-stone-400 mt-1">{fruit.en}</div>
+
+              <div className="space-y-4 mb-8">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs">🤖</span>
                   </div>
-                ))}
+                  <div>
+                    <div className="text-sm font-medium text-stone-700">MiMo-v2.5 大模型</div>
+                    <div className="text-xs text-stone-500 mt-0.5">小米多模态 AI，支持图像理解与分析</div>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs">🍎</span>
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-stone-700">智能水果识别</div>
+                    <div className="text-xs text-stone-500 mt-0.5">不限于固定类别，支持任意常见水果</div>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs">📊</span>
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-stone-700">营养信息展示</div>
+                    <div className="text-xs text-stone-500 mt-0.5">热量、维生素、膳食纤维、健康功效</div>
+                  </div>
+                </div>
               </div>
-              
-              <div className="mt-10 pt-6 border-t border-stone-100 text-center">
-                <p className="text-xs text-stone-400 tracking-widest uppercase font-medium">
-                  * 持续演进中，更多未知植物标本亦可尝试解析...
-                </p>
+
+              <div className="bg-stone-50 rounded-2xl p-5 mb-6">
+                <div className="text-xs font-bold tracking-widest uppercase text-stone-400 mb-3">技术栈</div>
+                <div className="flex flex-wrap gap-2">
+                  {['React 19', 'TypeScript', 'Tailwind CSS', 'Netlify Functions', 'MiMo-v2.5'].map((tech) => (
+                    <span key={tech} className="px-3 py-1 bg-white text-xs font-medium text-stone-600 rounded-full border border-stone-200">
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="text-center">
+                <a
+                  href="https://platform.xiaomimimo.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs text-emerald-600 hover:text-emerald-700 transition-colors"
+                >
+                  MiMo 开放平台
+                  <ExternalLink className="w-3 h-3" />
+                </a>
               </div>
             </div>
           </motion.div>

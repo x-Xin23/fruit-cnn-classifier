@@ -1,28 +1,14 @@
 import type { Context } from "@netlify/functions";
 
-const MIMO_API_URL = "https://api.xiaomimimo.com/v1/chat/completions";
+const MIMO_API_URL = "https://token-plan-cn.xiaomimimo.com/v1/chat/completions";
 const MIMO_MODEL = "mimo-v2.5";
 
-const SYSTEM_PROMPT = `你是一个专业的水果识别助手。用户会给你一张图片，请你识别图片中的水果。
+const SYSTEM_PROMPT = `你是水果识别助手。识别图片中的水果，返回纯JSON，不要加任何markdown标记。
 
-请严格按照以下 JSON 格式返回结果，不要添加任何额外的文字说明、markdown 标记或代码块标记，只返回纯 JSON：
+格式：
+{"fruit_zh":"中文名","fruit_en":"英文名","emoji":"🍎","calories":"52 kcal","vitamin_c":"4.6 mg/100g","fiber":"2.4 g/100g","benefits":["功效1","功效2","功效3"],"description":"50字简介","trivia":"冷知识"}
 
-{
-  "fruit_zh": "水果中文名",
-  "fruit_en": "水果英文名",
-  "emoji": "对应水果的emoji",
-  "calories": "每100g热量，格式如 '52 kcal'",
-  "vitamin_c": "维生素C含量，格式如 '4.6 mg/100g'",
-  "fiber": "膳食纤维含量，格式如 '2.4 g/100g'",
-  "benefits": ["健康益处1", "健康益处2", "健康益处3"],
-  "description": "一段50字左右的水果营养简介",
-  "trivia": "一个关于该水果的有趣冷知识"
-}
-
-注意：
-- 如果图片不是水果或无法识别，请返回 {"error": "无法识别图片中的水果，请上传一张清晰的水果照片。"}
-- benefits 数组固定返回 3 项
-- 所有文本使用中文`;
+非水果返回：{"error":"无法识别，请上传清晰的水果照片。"}`;
 
 export default async (req: Request, _context: Context) => {
   // CORS headers
@@ -67,7 +53,7 @@ export default async (req: Request, _context: Context) => {
       );
     }
 
-    // Call Mimo-v2.5 API
+    // Call Mimo-v2.5 API (disable thinking for faster response)
     const mimoRes = await fetch(MIMO_API_URL, {
       method: "POST",
       headers: {
@@ -89,13 +75,14 @@ export default async (req: Request, _context: Context) => {
               },
               {
                 type: "text",
-                text: "请识别这张图片中的水果，并按照要求的 JSON 格式返回结果。",
+                text: "识别水果，返回JSON。",
               },
             ],
           },
         ],
-        temperature: 0.3,
-        max_completion_tokens: 1024,
+        temperature: 0.1,
+        max_completion_tokens: 512,
+        thinking: { type: "disabled" },
       }),
     });
 
@@ -109,10 +96,12 @@ export default async (req: Request, _context: Context) => {
     }
 
     const mimoData = await mimoRes.json();
-    const content = mimoData?.choices?.[0]?.message?.content;
+    const message = mimoData?.choices?.[0]?.message;
+    // Try content first, then reasoning_content (thinking mode fallback)
+    const content = message?.content || message?.reasoning_content;
 
     if (!content) {
-      console.error("Empty response from Mimo API");
+      console.error("Empty response from Mimo API:", JSON.stringify(mimoData));
       return new Response(
         JSON.stringify({ error: "模型返回了空结果，请重新上传图片。" }),
         { status: 502, headers }
@@ -122,9 +111,18 @@ export default async (req: Request, _context: Context) => {
     // Parse JSON from model response (strip possible markdown code block)
     let parsed: any;
     try {
-      const cleaned = content.replace(/```json?\s*/g, "").replace(/```/g, "").trim();
-      parsed = JSON.parse(cleaned);
-    } catch {
+      // Try to extract JSON from the response (handle various formats)
+      let cleaned = content.trim();
+      // Remove markdown code blocks
+      cleaned = cleaned.replace(/```(?:json)?\s*/g, "").replace(/```/g, "").trim();
+      // Try to find JSON object in the response
+      const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        parsed = JSON.parse(jsonMatch[0]);
+      } else {
+        parsed = JSON.parse(cleaned);
+      }
+    } catch (e) {
       console.error("Failed to parse model response as JSON:", content);
       return new Response(
         JSON.stringify({ error: "模型返回格式异常，请重新上传图片。" }),
