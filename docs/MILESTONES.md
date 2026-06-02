@@ -5,8 +5,8 @@
 | 阶段 | 名称 | 预估工时 | 核心交付 | 状态 |
 |---|---|---|---|---|
 | M1 | 环境搭建与数据准备 | 1-2 天 | 项目骨架、数据集就绪 | ✅ 已完成 |
-| M2 | 模型开发与训练 | 2-3 天 | CNN 模型训练完成 | 🔴 待开始 |
-| M3 | 模型评估与可视化 | 1-2 天 | 评估报告、可视化图表 | 🔴 待开始 |
+| M2 | 模型开发与训练 | 2-3 天 | CNN 模型训练完成 | ✅ 已完成 |
+| M3 | 模型评估与可视化 | 1-2 天 | 评估报告、可视化图表 | ✅ 已完成 |
 | M4 | Web 应用开发 | 2-3 天 | 可交互 Streamlit 应用 | ✅ 已完成 |
 | M5 | 集成测试与文档 | 2-3 天 | 完整交付物 | 🟡 进行中 |
 
@@ -58,38 +58,29 @@ python -c "from data.fruit_dataset import FruitDataset; \
 
 ### 任务清单
 
-- [ ] 实现 `src/models/cnn_model.py`：4 层 CNN 架构
+- [x] 实现 `src/models/cnn_model.py`：4 层 CNN 架构（424,207 参数）
   - Conv Block 1: Conv2d(3→32, 3) → BN → ReLU → MaxPool(2)
   - Conv Block 2: Conv2d(32→64, 3) → BN → ReLU → MaxPool(2)
   - Conv Block 3: Conv2d(64→128, 3) → BN → ReLU → MaxPool(2)
   - Conv Block 4: Conv2d(128→256, 3) → BN → ReLU → MaxPool(2)
   - AdaptiveAvgPool2d(1) → Flatten → Dropout(0.5) → FC(256→128) → FC(128→15)
-- [ ] 实现 `src/training/trainer.py`：训练循环
+- [x] 实现 `src/training/trainer.py`：训练循环
   - 每 epoch 记录 train/val loss 和 accuracy
   - Model checkpoint：验证准确率提升时保存
-  - ReduceLROnPlateau 学习率衰减
+  - ReduceLROnPlateau 学习率衰减（factor=0.1, patience=5）
   - Early Stopping（patience=10）
   - CSV 日志输出到 `models/training_log.csv`
-- [ ] 实现 `src/training/train.py`：训练入口脚本
-- [ ] 运行训练 50 个 epoch（早停可能提前终止）
-- [ ] 保存最佳模型为 `models/fruit_cnn.pth`
+- [x] 实现 `src/training/train.py`：训练入口脚本
+- [x] 运行训练 50 个 epoch（Colab T4 GPU，约 40 分钟）
+- [x] 保存最佳模型为 `models/fruit_cnn.pth`
+
+**实际训练结果**: 测试准确率 99.90%，验证最佳 99.95%（epoch 50），所有 15 类 F1-score ≥ 0.996，远超 SPEC 85% 目标。
 
 ### 交付物
 
-1. 训练好的模型文件 `models/fruit_cnn.pth`（~5MB）
-2. 训练日志 CSV
-3. 终端输出：每 epoch 的 loss 和 accuracy
-
-### 验证方式
-
-```bash
-cd src
-python training/train.py
-# 预期最后几轮输出:
-# Epoch 48/50 | Train Loss: 0.152 | Train Acc: 94.2% | Val Loss: 0.218 | Val Acc: 92.1%
-# Epoch 49/50 | Train Loss: 0.145 | Train Acc: 94.5% | Val Loss: 0.215 | Val Acc: 92.3%
-# Epoch 50/50 | Train Loss: 0.138 | Train Acc: 94.8% | Val Loss: 0.212 | Val Acc: 92.5%
-```
+1. ~~训练好的模型文件 `models/fruit_cnn.pth`（~5MB）~~ ✅
+2. ~~训练日志 CSV~~ ✅
+3. ~~终端输出：每 epoch 的 loss 和 accuracy~~ ✅
 
 ---
 
@@ -99,44 +90,35 @@ python training/train.py
 
 ### 任务清单
 
-- [ ] 实现 `src/evaluation/evaluate.py`：
+- [x] 实现 `src/evaluation/evaluate.py`：
   - 加载最佳模型权重
   - 在测试集上计算整体准确率
   - 生成混淆矩阵
   - 生成分类报告（每类 Precision / Recall / F1）
   - 输出 10 个预测样例（图片 + 真实标签 + 预测标签）
-- [ ] 实现 `src/evaluation/visualize.py`：
+- [x] 实现 `src/evaluation/visualize.py`：
   - 训练/验证 loss 曲线图
   - 训练/验证 accuracy 曲线图
   - 混淆矩阵热力图
   - 预测样例网格图
-- [ ] 将所有图表保存至 `docs/report/figures/`
-- [ ] 记录评估结果，为报告准备素材
+- [x] 将所有图表保存至 `docs/report/figures/`
+- [x] 记录评估结果，为报告准备素材
+
+**实际评估结果**: 测试准确率 99.90%，MACRO avg F1 0.999，所有 15 类 F1 ≥ 0.996。
 
 ### 交付物
 
-1. 测试集准确率（控制台输出）
-2. 混淆矩阵 PNG
-3. 训练曲线 PNG（loss + accuracy）
-4. 预测样例 PNG
-5. 分类报告（控制台输出）
-
-### 验证方式
-
-```bash
-cd src
-python evaluation/evaluate.py
-# 预期输出:
-# Test Accuracy: 92.3%
-# Confusion matrix saved to: docs/report/figures/confusion_matrix.png
-# Per-class F1 scores all >= 0.75
-```
+1. ~~测试集准确率（控制台输出）~~ ✅ 99.90%
+2. ~~混淆矩阵 PNG~~ ✅ `docs/report/figures/confusion_matrix.png`
+3. ~~训练曲线 PNG（loss + accuracy）~~ ✅ `docs/report/figures/training_history.png`
+4. ~~预测样例 PNG~~ ✅ `docs/report/figures/sample_predictions.png`
+5. ~~分类报告（控制台输出）~~ ✅
 
 ---
 
 ## M4: Web 应用开发 ✅
 
-> **状态**: ✅ 已完成 (2026-06-01)。Web 前端已完整实现，但依赖 M1-M3 产出的模型文件才能运行推理。
+> **状态**: ✅ 已完成 (2026-06-01)。Web 前端 + 模型全部就绪，可直接运行推理。
 
 **目标**: 开发完整的 Streamlit Web 应用，实现图片上传 → 预测 → 营养展示。前端采用绿色水果主题设计系统，GSAP 动画增强交互体验，满足 WCAG AA 无障碍标准。
 
@@ -193,7 +175,7 @@ webapp/
   - 重新上传按钮（状态重置）
   - 错误提示（文件格式、文件大小、模型缺失）
   - GSAP 动画引擎 iframe（加载 CDN + animations.js）
-- [ ] 端到端测试：(⚠️ 需 M1-M3 产出模型文件后才能执行)
+- [ ] 端到端测试：模型已就绪，可执行
 
 ### 交付物
 

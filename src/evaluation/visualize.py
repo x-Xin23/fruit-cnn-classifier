@@ -188,7 +188,7 @@ def plot_sample_predictions(
         # 边框颜色
         color = "#2E7D32" if correct else "#D32F2F"
         for spine in ax.spines.values():
-            spine.set_edgewidth(3)
+            spine.set_linewidth(3)
             spine.set_color(color)
 
         ax.set_xticks([])
