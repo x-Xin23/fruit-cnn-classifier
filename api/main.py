@@ -1,5 +1,6 @@
 """FastAPI backend for fruit recognition."""
 
+import os
 import io
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,10 +10,13 @@ from api.inference import get_recognizer
 
 app = FastAPI(title="Fruit Recognition API")
 
-# Allow frontend dev server
+# CORS: allow origins from env var (comma-separated) or use defaults for local dev
+DEFAULT_ORIGINS = "http://localhost:5173,http://localhost:3000,http://localhost:8501"
+allowed_origins = os.environ.get("ALLOWED_ORIGINS", DEFAULT_ORIGINS).split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:8501"],
+    allow_origins=allowed_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )

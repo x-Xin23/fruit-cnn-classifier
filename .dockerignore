@@ -1,0 +1,17 @@
+frontend/
+webapp/
+data/
+.venv/
+.venv-cuda/
+node_modules/
+__pycache__/
+*.pyc
+.git/
+.gitignore
+.claude/
+docs/
+notebooks/
+*.pdf
+*.docx
+*.whl
+torch_cuda.whl
