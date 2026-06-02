@@ -67,7 +67,7 @@ export default function FruitResult({ info, imageUrl, onReset }: FruitResultProp
                 <div className="absolute inset-x-3 bottom-3 md:inset-x-5 md:bottom-5 bg-white/95 backdrop-blur-xl rounded-2xl p-4 md:p-5 border border-white opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 shadow-2xl pointer-events-none">
                   <h3 className="text-xs font-bold tracking-wider text-amber-700 mb-2 flex items-center gap-2">
                     <Lightbulb className="w-3.5 h-3.5" />
-                    科普拓展阅读
+                    食用小贴士
                   </h3>
                   <p className="text-stone-700 font-medium leading-relaxed text-xs">
                     {info.trivia}

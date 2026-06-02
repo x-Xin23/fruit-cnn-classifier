@@ -51,6 +51,7 @@ interface FastAPIResult {
     benefits: string[];
     description: string;
   };
+  trivia: string;
   top3: Array<{
     name_en: string;
     name_zh: string;
@@ -92,7 +93,7 @@ function mapToFruitInfo(result: FastAPIResult): FruitInfo {
       },
     ],
     superpowers: nutrition.benefits,
-    trivia: `该水果的识别置信度为 ${(result.confidence * 100).toFixed(1)}%。Top-3 预测：${result.top3.map((t) => `${t.name_zh} ${(t.confidence * 100).toFixed(1)}%`).join("、")}`,
+    trivia: result.trivia || `该水果的识别置信度为 ${(result.confidence * 100).toFixed(1)}%。`,
     origin: "基于 Fruits 360 数据集训练的 4 层 CNN 模型识别，测试准确率 99.90%。",
   };
 }

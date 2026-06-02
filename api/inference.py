@@ -97,6 +97,7 @@ class FruitRecognizer:
                 "benefits": nutrition.get("benefits", []),
                 "description": nutrition.get("description", ""),
             },
+            "trivia": nutrition.get("trivia", ""),
             "top3": top3,
         }
 
